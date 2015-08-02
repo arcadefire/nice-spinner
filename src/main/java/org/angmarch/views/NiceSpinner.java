@@ -3,6 +3,7 @@ package org.angmarch.views;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,16 +50,21 @@ public class NiceSpinner extends TextView {
     private AdapterView.OnItemClickListener mOnItemClickListener;
     private ArrayList mDataset;
     private int[] mViewBounds;
-    private int mTintResId = -1;
 
+    @SuppressWarnings("ConstantConditions")
     public NiceSpinner(Context context) {
         super(context);
-        init();
+        init(null);
     }
 
     public NiceSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(attrs);
+    }
+
+    public NiceSpinner(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init(attrs);
     }
 
     @Override
@@ -107,8 +113,9 @@ public class NiceSpinner extends TextView {
         super.onRestoreInstanceState(savedState);
     }
 
-    private void init() {
+    private void init(AttributeSet attrs) {
         Resources resources = getResources();
+        TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.NiceSpinner);
         int defaultPadding = resources.getDimensionPixelSize(R.dimen.one_and_a_half_grid_unit);
 
         setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
@@ -179,14 +186,18 @@ public class NiceSpinner extends TextView {
         });
 
         Drawable basicDrawable = ContextCompat.getDrawable(getContext(), R.drawable.arrow);
+        int resId = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, -1);
+
         if (basicDrawable != null) {
             mDrawable = DrawableCompat.wrap(basicDrawable);
 
-            if (mTintResId > -1) {
-                DrawableCompat.setTint(mDrawable, resources.getColor(mTintResId));
+            if (resId != -1) {
+                DrawableCompat.setTint(mDrawable, resId);
             }
         }
         setCompoundDrawablesWithIntrinsicBounds(null, null, mDrawable, null);
+
+        typedArray.recycle();
     }
 
     private static boolean isTouchInsideViewBounds(float x, float y, int[] viewBounds, View view) {
@@ -249,7 +260,9 @@ public class NiceSpinner extends TextView {
     }
 
     public void setTintColor(@ColorRes int resId) {
-        mTintResId = resId;
+        if (mDrawable != null) {
+            DrawableCompat.setTint(mDrawable, getResources().getColor(resId));
+        }
     }
 
     private class FullWidthAdapter<T> extends BaseAdapter {
