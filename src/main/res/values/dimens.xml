@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="three_grid_unit">24dp</dimen>
+    <dimen name="one_and_a_half_grid_unit">12dp</dimen>
+</resources>
