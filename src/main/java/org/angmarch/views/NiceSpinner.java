@@ -137,7 +137,8 @@ public class NiceSpinner extends TextView {
             }
         });
 
-        mPopup = new PopupWindow(getContext());
+        mPopup = new PopupWindow(mListView, ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, true);
         mPopup.setContentView(mListView);
         mPopup.setOutsideTouchable(true);
 
