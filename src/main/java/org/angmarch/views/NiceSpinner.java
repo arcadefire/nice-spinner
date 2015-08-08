@@ -17,7 +17,6 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
@@ -124,16 +123,16 @@ public class NiceSpinner extends TextView {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position >= mSelectedIndex && position < mAdapter.getCount()) {
+                    position++;
+                }
+
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClick(parent, view, position, id);
                 }
 
                 if (mOnItemSelectedListener != null) {
                     mOnItemSelectedListener.onItemSelected(parent, view, position, id);
-                }
-
-                if (position >= mSelectedIndex && position < mAdapter.getCount()) {
-                    position++;
                 }
 
                 mAdapter.notifyItemSelected(position);
@@ -190,6 +189,10 @@ public class NiceSpinner extends TextView {
 
     public void addOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
+    }
+
+    public void setOnItemSelectedListener(AdapterView.OnItemSelectedListener onItemSelectedListener) {
+        mOnItemSelectedListener = onItemSelectedListener;
     }
 
     public <T> void attachDataSource(@NonNull ArrayList<T> dataset) {
