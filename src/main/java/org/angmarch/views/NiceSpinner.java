@@ -17,6 +17,7 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
@@ -46,7 +47,7 @@ public class NiceSpinner extends TextView {
     private ListView mListView;
     private AdapterView.OnItemClickListener mOnItemClickListener;
     private int[] mViewBounds;
-    private NiceSpinnerAdapter mAdapter;
+    private NiceSpinnerBaseAdapter mAdapter;
 
     @SuppressWarnings("ConstantConditions")
     public NiceSpinner(Context context) {

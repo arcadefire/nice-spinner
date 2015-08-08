@@ -6,13 +6,13 @@ import android.widget.ListAdapter;
 /**
  * @author angelo.marchesin
  */
-@SuppressWarnings("unused")
-public class NiceSpinnerAdapterWrapper extends NiceSpinnerAdapter {
+
+public class NiceSpinnerAdapterWrapper extends NiceSpinnerBaseAdapter {
 
     private final ListAdapter mBaseAdapter;
 
     public NiceSpinnerAdapterWrapper(Context context, ListAdapter toWrap) {
-        super(context, null);
+        super(context);
         mBaseAdapter = toWrap;
     }
 
@@ -33,10 +33,5 @@ public class NiceSpinnerAdapterWrapper extends NiceSpinnerAdapter {
     @Override
     public Object getItemInDataset(int position) {
         return mBaseAdapter.getItem(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
     }
 }
