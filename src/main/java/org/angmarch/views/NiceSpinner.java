@@ -46,6 +46,7 @@ public class NiceSpinner extends TextView {
     private PopupWindow mPopup;
     private ListView mListView;
     private AdapterView.OnItemClickListener mOnItemClickListener;
+    private AdapterView.OnItemSelectedListener mOnItemSelectedListener;
     private int[] mViewBounds;
     private NiceSpinnerBaseAdapter mAdapter;
 
@@ -123,12 +124,16 @@ public class NiceSpinner extends TextView {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position >= mSelectedIndex && position < mAdapter.getCount()) {
-                    position++;
-                }
-
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClick(parent, view, position, id);
+                }
+
+                if (mOnItemSelectedListener != null) {
+                    mOnItemSelectedListener.onItemSelected(parent, view, position, id);
+                }
+
+                if (position >= mSelectedIndex && position < mAdapter.getCount()) {
+                    position++;
                 }
 
                 mAdapter.notifyItemSelected(position);
@@ -138,10 +143,10 @@ public class NiceSpinner extends TextView {
             }
         });
 
-        mPopup = new PopupWindow(mListView, ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        mPopup = new PopupWindow(getContext());
         mPopup.setContentView(mListView);
         mPopup.setOutsideTouchable(true);
+        mPopup.setFocusable(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mPopup.setElevation(DEFAULT_ELEVATION);
@@ -152,31 +157,10 @@ public class NiceSpinner extends TextView {
                     R.drawable.drop_down_shadow));
         }
 
-        mPopup.setTouchInterceptor(new View.OnTouchListener() {
+        mPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                float x = event.getRawX();
-                float y = event.getRawY();
-
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_OUTSIDE: {
-                        // Compute bounds only once after the first event is fired
-                        if (mViewBounds == null) {
-                            mViewBounds = new int[2];
-                            getLocationInWindow(mViewBounds);
-                        }
-
-                        if (isTouchInsideViewBounds(x, y, mViewBounds, NiceSpinner.this)
-                                && mPopup.isShowing()) {
-                            return true;
-                        }
-
-                        dismissDropDown();
-                    }
-                    break;
-                }
-
-                return false;
+            public void onDismiss() {
+                animateArrow(false);
             }
         });
 
