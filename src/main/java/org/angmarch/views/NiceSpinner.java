@@ -52,17 +52,17 @@ public class NiceSpinner extends TextView {
     @SuppressWarnings("ConstantConditions")
     public NiceSpinner(Context context) {
         super(context);
-        init(null);
+        init(context, null);
     }
 
     public NiceSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(attrs);
+        init(context, attrs);
     }
 
     public NiceSpinner(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(attrs);
+        init(context, attrs);
     }
 
     @Override
@@ -106,9 +106,9 @@ public class NiceSpinner extends TextView {
         super.onRestoreInstanceState(savedState);
     }
 
-    private void init(AttributeSet attrs) {
+    private void init(Context context, AttributeSet attrs) {
         Resources resources = getResources();
-        TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.NiceSpinner);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.NiceSpinner);
         int defaultPadding = resources.getDimensionPixelSize(R.dimen.one_and_a_half_grid_unit);
 
         setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
@@ -117,7 +117,7 @@ public class NiceSpinner extends TextView {
         setClickable(true);
         setBackgroundResource(R.drawable.selector);
 
-        mListView = new ListView(getContext());
+        mListView = new ListView(context);
         mListView.setDivider(null);
         mListView.setItemsCanFocus(true);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -142,7 +142,7 @@ public class NiceSpinner extends TextView {
             }
         });
 
-        mPopup = new PopupWindow(getContext());
+        mPopup = new PopupWindow(context);
         mPopup.setContentView(mListView);
         mPopup.setOutsideTouchable(true);
         mPopup.setFocusable(true);
@@ -150,9 +150,9 @@ public class NiceSpinner extends TextView {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mPopup.setElevation(DEFAULT_ELEVATION);
             mPopup.setBackgroundDrawable(
-                    ContextCompat.getDrawable(getContext(), R.drawable.spinner_drawable));
+                    ContextCompat.getDrawable(context, R.drawable.spinner_drawable));
         } else {
-            mPopup.setBackgroundDrawable(ContextCompat.getDrawable(getContext(),
+            mPopup.setBackgroundDrawable(ContextCompat.getDrawable(context,
                     R.drawable.drop_down_shadow));
         }
 
@@ -163,7 +163,7 @@ public class NiceSpinner extends TextView {
             }
         });
 
-        Drawable basicDrawable = ContextCompat.getDrawable(getContext(), R.drawable.arrow);
+        Drawable basicDrawable = ContextCompat.getDrawable(context, R.drawable.arrow);
         int resId = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, -1);
 
         if (basicDrawable != null) {
