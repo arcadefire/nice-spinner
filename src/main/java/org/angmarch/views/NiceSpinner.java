@@ -33,8 +33,6 @@ import java.util.ArrayList;
 public class NiceSpinner extends TextView {
 
     private static final int MAX_LEVEL = 10000;
-    private static final int VIEW_LEFT = 0;
-    private static final int VIEW_TOP = 1;
     private static final int DEFAULT_ELEVATION = 16;
     private static final String INSTANCE_STATE = "instance_state";
     private static final String SELECTED_INDEX = "selected_index";
@@ -44,10 +42,9 @@ public class NiceSpinner extends TextView {
     private Drawable mDrawable;
     private PopupWindow mPopup;
     private ListView mListView;
+    private NiceSpinnerBaseAdapter mAdapter;
     private AdapterView.OnItemClickListener mOnItemClickListener;
     private AdapterView.OnItemSelectedListener mOnItemSelectedListener;
-    private int[] mViewBounds;
-    private NiceSpinnerBaseAdapter mAdapter;
 
     @SuppressWarnings("ConstantConditions")
     public NiceSpinner(Context context) {
@@ -176,11 +173,6 @@ public class NiceSpinner extends TextView {
         setCompoundDrawablesWithIntrinsicBounds(null, null, mDrawable, null);
 
         typedArray.recycle();
-    }
-
-    private static boolean isTouchInsideViewBounds(float x, float y, int[] viewBounds, View view) {
-        return x < viewBounds[VIEW_LEFT] + view.getWidth() && x > viewBounds[VIEW_LEFT]
-                && y < viewBounds[VIEW_TOP] + view.getHeight() && y > viewBounds[VIEW_TOP];
     }
 
     public int getSelectedIndex() {
