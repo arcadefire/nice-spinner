@@ -17,16 +17,14 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author angelo.marchesin
@@ -40,7 +38,6 @@ public class NiceSpinner extends TextView {
     private static final int DEFAULT_ELEVATION = 16;
     private static final String INSTANCE_STATE = "instance_state";
     private static final String SELECTED_INDEX = "selected_index";
-    private static final String DATASET = "dataset";
     private static final String IS_POPUP_SHOWING = "is_popup_showing";
 
     private int mSelectedIndex;
@@ -48,8 +45,8 @@ public class NiceSpinner extends TextView {
     private PopupWindow mPopup;
     private ListView mListView;
     private AdapterView.OnItemClickListener mOnItemClickListener;
-    private ArrayList mDataset;
     private int[] mViewBounds;
+    private NiceSpinnerAdapter mAdapter;
 
     @SuppressWarnings("ConstantConditions")
     public NiceSpinner(Context context) {
@@ -71,9 +68,7 @@ public class NiceSpinner extends TextView {
     public Parcelable onSaveInstanceState() {
         Bundle bundle = new Bundle();
         bundle.putParcelable(INSTANCE_STATE, super.onSaveInstanceState());
-
         bundle.putInt(SELECTED_INDEX, mSelectedIndex);
-        bundle.putSerializable(DATASET, mDataset);
 
         if (mPopup != null) {
             bundle.putBoolean(IS_POPUP_SHOWING, mPopup.isShowing());
@@ -89,11 +84,8 @@ public class NiceSpinner extends TextView {
             Bundle bundle = (Bundle) savedState;
 
             mSelectedIndex = bundle.getInt(SELECTED_INDEX);
-            mDataset = (ArrayList) bundle.getSerializable(DATASET);
-
-            if (mDataset != null) {
-                setText(mDataset.get(mSelectedIndex).toString());
-            }
+            setText(mAdapter.getItemInDataset(mSelectedIndex).toString());
+            mAdapter.notifyItemSelected(mSelectedIndex);
 
             if (bundle.getBoolean(IS_POPUP_SHOWING)) {
                 if (mPopup != null) {
@@ -130,7 +122,7 @@ public class NiceSpinner extends TextView {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position >= mSelectedIndex && position < mDataset.size()) {
+                if (position >= mSelectedIndex && position < mAdapter.getCount()) {
                     position++;
                 }
 
@@ -138,8 +130,9 @@ public class NiceSpinner extends TextView {
                     mOnItemClickListener.onItemClick(parent, view, position, id);
                 }
 
+                mAdapter.notifyItemSelected(position);
                 mSelectedIndex = position;
-                setText(mDataset.get(position).toString());
+                setText(mAdapter.getItemInDataset(position).toString());
                 dismissDropDown();
             }
         });
@@ -213,12 +206,19 @@ public class NiceSpinner extends TextView {
         mOnItemClickListener = onItemClickListener;
     }
 
-    public <T> void attachDataSource(ArrayList<T> dataset) {
-        if (dataset != null) {
-            mDataset = dataset;
-            mListView.setAdapter(new FullWidthAdapter<>(dataset));
-            setText(mDataset.get(mSelectedIndex).toString());
-        }
+    public <T> void attachDataSource(@NonNull ArrayList<T> dataset) {
+        mAdapter = new NiceSpinnerAdapter<>(getContext(), dataset);
+        setAdapterInternal();
+    }
+
+    public void setAdapter(@NonNull ListAdapter adapter) {
+        mAdapter = new NiceSpinnerAdapterWrapper(getContext(), adapter);
+        setAdapterInternal();
+    }
+
+    private void setAdapterInternal() {
+        mListView.setAdapter(mAdapter);
+        setText(mAdapter.getItemInDataset(mSelectedIndex).toString());
     }
 
     @Override
@@ -262,66 +262,6 @@ public class NiceSpinner extends TextView {
     public void setTintColor(@ColorRes int resId) {
         if (mDrawable != null) {
             DrawableCompat.setTint(mDrawable, getResources().getColor(resId));
-        }
-    }
-
-    private class FullWidthAdapter<T> extends BaseAdapter {
-
-        private final List<T> mItems;
-
-        public FullWidthAdapter(List<T> items) {
-            mItems = items;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public View getView(int position, View convertView, ViewGroup parent) {
-            TextView textView;
-
-            if (convertView == null) {
-                convertView = View.inflate(getContext(), R.layout.spinner_list_item, null);
-                textView = (TextView) convertView.findViewById(R.id.tv_tinted_spinner);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    textView.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.selector));
-                }
-
-                convertView.setTag(new ViewHolder(textView));
-            } else {
-                textView = ((ViewHolder) convertView.getTag()).textView;
-            }
-
-            textView.setText(getItem(position).toString());
-
-            return convertView;
-        }
-
-        @Override
-        public int getCount() {
-            return mItems.size() - 1;
-        }
-
-        @Override
-        public T getItem(int position) {
-            if (position >= mSelectedIndex) {
-                return mItems.get(position + 1);
-            } else {
-                return mItems.get(position);
-            }
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        private class ViewHolder {
-
-            public TextView textView;
-
-            public ViewHolder(TextView textView) {
-                this.textView = textView;
-            }
         }
     }
 }
