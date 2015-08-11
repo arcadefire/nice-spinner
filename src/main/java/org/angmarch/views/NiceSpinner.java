@@ -82,8 +82,11 @@ public class NiceSpinner extends TextView {
             Bundle bundle = (Bundle) savedState;
 
             mSelectedIndex = bundle.getInt(SELECTED_INDEX);
-            setText(mAdapter.getItemInDataset(mSelectedIndex).toString());
-            mAdapter.notifyItemSelected(mSelectedIndex);
+
+            if (mAdapter != null) {
+                setText(mAdapter.getItemInDataset(mSelectedIndex).toString());
+                mAdapter.notifyItemSelected(mSelectedIndex);
+            }
 
             if (bundle.getBoolean(IS_POPUP_SHOWING)) {
                 if (mPopup != null) {
@@ -184,7 +187,7 @@ public class NiceSpinner extends TextView {
      * @param position the item's position
      */
     public void setSelectedIndex(int position) {
-        if(mAdapter != null) {
+        if (mAdapter != null) {
             if (position >= 0 && position <= mAdapter.getCount()) {
                 mAdapter.notifyItemSelected(position);
                 mSelectedIndex = position;
@@ -205,17 +208,17 @@ public class NiceSpinner extends TextView {
 
     public <T> void attachDataSource(@NonNull ArrayList<T> dataset) {
         mAdapter = new NiceSpinnerAdapter<>(getContext(), dataset);
-        setAdapterInternal();
+        setAdapterInternal(mAdapter);
     }
 
     public void setAdapter(@NonNull ListAdapter adapter) {
         mAdapter = new NiceSpinnerAdapterWrapper(getContext(), adapter);
-        setAdapterInternal();
+        setAdapterInternal(mAdapter);
     }
 
-    private void setAdapterInternal() {
-        mListView.setAdapter(mAdapter);
-        setText(mAdapter.getItemInDataset(mSelectedIndex).toString());
+    private void setAdapterInternal(@NonNull NiceSpinnerBaseAdapter adapter) {
+        mListView.setAdapter(adapter);
+        setText(adapter.getItemInDataset(mSelectedIndex).toString());
     }
 
     @Override
