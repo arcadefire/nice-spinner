@@ -179,6 +179,16 @@ public class NiceSpinner extends TextView {
         return mSelectedIndex;
     }
 
+    //can be used to set default spinner item
+    public void setSelectedIndex(int position) {
+        if(position >= 0 && position <= mAdapter.getCount()) {
+            mAdapter.notifyItemSelected(position);
+            mSelectedIndex = position;
+            setText(mAdapter.getItemInDataset(position).toString());
+        } else
+            throw new IllegalArgumentException("Position must be lower than adapter count!");
+    }
+
     public void addOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
     }
