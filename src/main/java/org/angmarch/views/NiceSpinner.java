@@ -198,11 +198,12 @@ public class NiceSpinner extends TextView {
         }
     }
 
-    public void addOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
+    public void addOnItemClickListener(@NonNull AdapterView.OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
     }
 
-    public void setOnItemSelectedListener(AdapterView.OnItemSelectedListener onItemSelectedListener) {
+    public void setOnItemSelectedListener(@NonNull AdapterView.OnItemSelectedListener
+            onItemSelectedListener) {
         mOnItemSelectedListener = onItemSelectedListener;
     }
 
