@@ -24,7 +24,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author angelo.marchesin
@@ -206,7 +206,7 @@ public class NiceSpinner extends TextView {
         mOnItemSelectedListener = onItemSelectedListener;
     }
 
-    public <T> void attachDataSource(@NonNull ArrayList<T> dataset) {
+    public <T> void attachDataSource(@NonNull List<T> dataset) {
         mAdapter = new NiceSpinnerAdapter<>(getContext(), dataset);
         setAdapterInternal(mAdapter);
     }
