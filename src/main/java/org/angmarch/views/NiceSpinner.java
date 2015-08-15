@@ -45,6 +45,7 @@ public class NiceSpinner extends TextView {
     private NiceSpinnerBaseAdapter mAdapter;
     private AdapterView.OnItemClickListener mOnItemClickListener;
     private AdapterView.OnItemSelectedListener mOnItemSelectedListener;
+    private boolean mHideArrow;
 
     @SuppressWarnings("ConstantConditions")
     public NiceSpinner(Context context) {
@@ -163,17 +164,20 @@ public class NiceSpinner extends TextView {
             }
         });
 
-        Drawable basicDrawable = ContextCompat.getDrawable(context, R.drawable.arrow);
-        int resId = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, -1);
+        mHideArrow = typedArray.getBoolean(R.styleable.NiceSpinner_hideArrow, false);
+        if (!mHideArrow) {
+            Drawable basicDrawable = ContextCompat.getDrawable(context, R.drawable.arrow);
+            int resId = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, -1);
 
-        if (basicDrawable != null) {
-            mDrawable = DrawableCompat.wrap(basicDrawable);
+            if (basicDrawable != null) {
+                mDrawable = DrawableCompat.wrap(basicDrawable);
 
-            if (resId != -1) {
-                DrawableCompat.setTint(mDrawable, resId);
+                if (resId != -1) {
+                    DrawableCompat.setTint(mDrawable, resId);
+                }
             }
+            setCompoundDrawablesWithIntrinsicBounds(null, null, mDrawable, null);
         }
-        setCompoundDrawablesWithIntrinsicBounds(null, null, mDrawable, null);
 
         typedArray.recycle();
     }
@@ -261,7 +265,7 @@ public class NiceSpinner extends TextView {
     }
 
     public void setTintColor(@ColorRes int resId) {
-        if (mDrawable != null) {
+        if (mDrawable != null && !mHideArrow) {
             DrawableCompat.setTint(mDrawable, getResources().getColor(resId));
         }
     }
