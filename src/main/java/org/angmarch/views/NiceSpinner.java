@@ -119,6 +119,9 @@ public class NiceSpinner extends TextView {
         setBackgroundResource(R.drawable.selector);
 
         mListView = new ListView(context);
+        // Set the spinner's id into the listview to make it pretend to be the right parent in
+        // onItemClick
+        mListView.setId(getId());
         mListView.setDivider(null);
         mListView.setItemsCanFocus(true);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
