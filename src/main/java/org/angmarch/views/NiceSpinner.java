@@ -113,8 +113,8 @@ public class NiceSpinner extends TextView {
         int defaultPadding = resources.getDimensionPixelSize(R.dimen.one_and_a_half_grid_unit);
 
         setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-        setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit),
-                defaultPadding, defaultPadding, defaultPadding);
+        setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit), defaultPadding, defaultPadding,
+            defaultPadding);
         setClickable(true);
         setBackgroundResource(R.drawable.selector);
 
@@ -153,17 +153,17 @@ public class NiceSpinner extends TextView {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mPopup.setElevation(DEFAULT_ELEVATION);
-            mPopup.setBackgroundDrawable(
-                    ContextCompat.getDrawable(context, R.drawable.spinner_drawable));
+            mPopup.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.spinner_drawable));
         } else {
-            mPopup.setBackgroundDrawable(ContextCompat.getDrawable(context,
-                    R.drawable.drop_down_shadow));
+            mPopup.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.drop_down_shadow));
         }
 
         mPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
-                animateArrow(false);
+                if (!mHideArrow) {
+                    animateArrow(false);
+                }
             }
         });
 
@@ -191,6 +191,7 @@ public class NiceSpinner extends TextView {
 
     /**
      * Set the default spinner item using its index
+     * 
      * @param position the item's position
      */
     public void setSelectedIndex(int position) {
@@ -209,8 +210,7 @@ public class NiceSpinner extends TextView {
         mOnItemClickListener = onItemClickListener;
     }
 
-    public void setOnItemSelectedListener(@NonNull AdapterView.OnItemSelectedListener
-            onItemSelectedListener) {
+    public void setOnItemSelectedListener(@NonNull AdapterView.OnItemSelectedListener onItemSelectedListener) {
         mOnItemSelectedListener = onItemSelectedListener;
     }
 
@@ -258,12 +258,16 @@ public class NiceSpinner extends TextView {
     }
 
     public void dismissDropDown() {
-        animateArrow(false);
+        if (!mHideArrow) {
+            animateArrow(false);
+        }
         mPopup.dismiss();
     }
 
     public void showDropDown() {
-        animateArrow(true);
+        if (!mHideArrow) {
+            animateArrow(true);
+        }
         mPopup.showAsDropDown(this);
     }
 
