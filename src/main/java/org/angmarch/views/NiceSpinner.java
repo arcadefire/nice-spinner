@@ -24,7 +24,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author angelo.marchesin
@@ -45,6 +45,7 @@ public class NiceSpinner extends TextView {
     private NiceSpinnerBaseAdapter mAdapter;
     private AdapterView.OnItemClickListener mOnItemClickListener;
     private AdapterView.OnItemSelectedListener mOnItemSelectedListener;
+    private boolean mHideArrow;
 
     @SuppressWarnings("ConstantConditions")
     public NiceSpinner(Context context) {
@@ -82,8 +83,11 @@ public class NiceSpinner extends TextView {
             Bundle bundle = (Bundle) savedState;
 
             mSelectedIndex = bundle.getInt(SELECTED_INDEX);
-            setText(mAdapter.getItemInDataset(mSelectedIndex).toString());
-            mAdapter.notifyItemSelected(mSelectedIndex);
+
+            if (mAdapter != null) {
+                setText(mAdapter.getItemInDataset(mSelectedIndex).toString());
+                mAdapter.notifyItemSelected(mSelectedIndex);
+            }
 
             if (bundle.getBoolean(IS_POPUP_SHOWING)) {
                 if (mPopup != null) {
@@ -109,12 +113,15 @@ public class NiceSpinner extends TextView {
         int defaultPadding = resources.getDimensionPixelSize(R.dimen.one_and_a_half_grid_unit);
 
         setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-        setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit),
-                defaultPadding, defaultPadding, defaultPadding);
+        setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit), defaultPadding, defaultPadding,
+            defaultPadding);
         setClickable(true);
         setBackgroundResource(R.drawable.selector);
 
         mListView = new ListView(context);
+        // Set the spinner's id into the listview to make it pretend to be the right parent in
+        // onItemClick
+        mListView.setId(getId());
         mListView.setDivider(null);
         mListView.setItemsCanFocus(true);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -146,31 +153,34 @@ public class NiceSpinner extends TextView {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mPopup.setElevation(DEFAULT_ELEVATION);
-            mPopup.setBackgroundDrawable(
-                    ContextCompat.getDrawable(context, R.drawable.spinner_drawable));
+            mPopup.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.spinner_drawable));
         } else {
-            mPopup.setBackgroundDrawable(ContextCompat.getDrawable(context,
-                    R.drawable.drop_down_shadow));
+            mPopup.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.drop_down_shadow));
         }
 
         mPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
-                animateArrow(false);
+                if (!mHideArrow) {
+                    animateArrow(false);
+                }
             }
         });
 
-        Drawable basicDrawable = ContextCompat.getDrawable(context, R.drawable.arrow);
-        int resId = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, -1);
+        mHideArrow = typedArray.getBoolean(R.styleable.NiceSpinner_hideArrow, false);
+        if (!mHideArrow) {
+            Drawable basicDrawable = ContextCompat.getDrawable(context, R.drawable.arrow);
+            int resId = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, -1);
 
-        if (basicDrawable != null) {
-            mDrawable = DrawableCompat.wrap(basicDrawable);
+            if (basicDrawable != null) {
+                mDrawable = DrawableCompat.wrap(basicDrawable);
 
-            if (resId != -1) {
-                DrawableCompat.setTint(mDrawable, resId);
+                if (resId != -1) {
+                    DrawableCompat.setTint(mDrawable, resId);
+                }
             }
+            setCompoundDrawablesWithIntrinsicBounds(null, null, mDrawable, null);
         }
-        setCompoundDrawablesWithIntrinsicBounds(null, null, mDrawable, null);
 
         typedArray.recycle();
     }
@@ -179,27 +189,44 @@ public class NiceSpinner extends TextView {
         return mSelectedIndex;
     }
 
-    public void addOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
+    /**
+     * Set the default spinner item using its index
+     * 
+     * @param position the item's position
+     */
+    public void setSelectedIndex(int position) {
+        if (mAdapter != null) {
+            if (position >= 0 && position <= mAdapter.getCount()) {
+                mAdapter.notifyItemSelected(position);
+                mSelectedIndex = position;
+                setText(mAdapter.getItemInDataset(position).toString());
+            } else {
+                throw new IllegalArgumentException("Position must be lower than adapter count!");
+            }
+        }
+    }
+
+    public void addOnItemClickListener(@NonNull AdapterView.OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
     }
 
-    public void setOnItemSelectedListener(AdapterView.OnItemSelectedListener onItemSelectedListener) {
+    public void setOnItemSelectedListener(@NonNull AdapterView.OnItemSelectedListener onItemSelectedListener) {
         mOnItemSelectedListener = onItemSelectedListener;
     }
 
-    public <T> void attachDataSource(@NonNull ArrayList<T> dataset) {
+    public <T> void attachDataSource(@NonNull List<T> dataset) {
         mAdapter = new NiceSpinnerAdapter<>(getContext(), dataset);
-        setAdapterInternal();
+        setAdapterInternal(mAdapter);
     }
 
     public void setAdapter(@NonNull ListAdapter adapter) {
         mAdapter = new NiceSpinnerAdapterWrapper(getContext(), adapter);
-        setAdapterInternal();
+        setAdapterInternal(mAdapter);
     }
 
-    private void setAdapterInternal() {
-        mListView.setAdapter(mAdapter);
-        setText(mAdapter.getItemInDataset(mSelectedIndex).toString());
+    private void setAdapterInternal(@NonNull NiceSpinnerBaseAdapter adapter) {
+        mListView.setAdapter(adapter);
+        setText(adapter.getItemInDataset(mSelectedIndex).toString());
     }
 
     @Override
@@ -231,17 +258,21 @@ public class NiceSpinner extends TextView {
     }
 
     public void dismissDropDown() {
-        animateArrow(false);
+        if (!mHideArrow) {
+            animateArrow(false);
+        }
         mPopup.dismiss();
     }
 
     public void showDropDown() {
-        animateArrow(true);
+        if (!mHideArrow) {
+            animateArrow(true);
+        }
         mPopup.showAsDropDown(this);
     }
 
     public void setTintColor(@ColorRes int resId) {
-        if (mDrawable != null) {
+        if (mDrawable != null && !mHideArrow) {
             DrawableCompat.setTint(mDrawable, getResources().getColor(resId));
         }
     }
