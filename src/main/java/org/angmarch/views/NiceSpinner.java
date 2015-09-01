@@ -124,6 +124,9 @@ public class NiceSpinner extends TextView {
         mListView.setId(getId());
         mListView.setDivider(null);
         mListView.setItemsCanFocus(true);
+        //hide vertical and horizontal scrollbars
+        mListView.setVerticalScrollBarEnabled(false);
+        mListView.setHorizontalScrollBarEnabled(false);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
