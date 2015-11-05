@@ -131,6 +131,10 @@ public class NiceSpinner extends TextView {
                     position++;
                 }
 
+                // Need to set selected index before calling listeners or getSelectedIndex() can be
+                // reported incorrectly due to race conditions.
+                mSelectedIndex = position;
+
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClick(parent, view, position, id);
                 }
@@ -140,7 +144,6 @@ public class NiceSpinner extends TextView {
                 }
 
                 mAdapter.notifyItemSelected(position);
-                mSelectedIndex = position;
                 setText(mAdapter.getItemInDataset(position).toString());
                 dismissDropDown();
             }
