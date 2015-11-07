@@ -16,9 +16,13 @@ import android.widget.TextView;
 public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
     protected Context mContext;
     protected int mSelectedIndex;
+    protected int mTextColor;
+    protected int mBackgroundSelector;
 
-    public NiceSpinnerBaseAdapter(Context context) {
+    public NiceSpinnerBaseAdapter(Context context, int textColor, int backgroundSelector) {
         mContext = context;
+        mTextColor = textColor;
+        mBackgroundSelector = backgroundSelector;
     }
 
     @Override
@@ -31,7 +35,7 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
             textView = (TextView) convertView.findViewById(R.id.tv_tinted_spinner);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                textView.setBackground(ContextCompat.getDrawable(mContext, R.drawable.selector));
+                textView.setBackground(ContextCompat.getDrawable(mContext, mBackgroundSelector));
             }
 
             convertView.setTag(new ViewHolder(textView));
@@ -40,6 +44,7 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
         }
 
         textView.setText(getItem(position).toString());
+        textView.setTextColor(mTextColor);
 
         return convertView;
     }

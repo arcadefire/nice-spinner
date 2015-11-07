@@ -46,6 +46,9 @@ public class NiceSpinner extends TextView {
     private AdapterView.OnItemClickListener mOnItemClickListener;
     private AdapterView.OnItemSelectedListener mOnItemSelectedListener;
     private boolean mHideArrow;
+    private int mTextColor;
+    private int mBackgroundSelector;
+
 
     @SuppressWarnings("ConstantConditions")
     public NiceSpinner(Context context) {
@@ -116,7 +119,12 @@ public class NiceSpinner extends TextView {
         setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit), defaultPadding, defaultPadding,
             defaultPadding);
         setClickable(true);
-        setBackgroundResource(R.drawable.selector);
+
+        mBackgroundSelector = typedArray.getResourceId(R.styleable.NiceSpinner_backgroundSelector, R.drawable.selector);
+        setBackgroundResource(mBackgroundSelector);
+        mTextColor = typedArray.getColor(R.styleable.NiceSpinner_textTint, -1);
+        setTextColor(mTextColor);
+
 
         mListView = new ListView(context);
         // Set the spinner's id into the listview to make it pretend to be the right parent in
@@ -124,6 +132,9 @@ public class NiceSpinner extends TextView {
         mListView.setId(getId());
         mListView.setDivider(null);
         mListView.setItemsCanFocus(true);
+        //hide vertical and horizontal scrollbars
+        mListView.setVerticalScrollBarEnabled(false);
+        mListView.setHorizontalScrollBarEnabled(false);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -218,12 +229,12 @@ public class NiceSpinner extends TextView {
     }
 
     public <T> void attachDataSource(@NonNull List<T> dataset) {
-        mAdapter = new NiceSpinnerAdapter<>(getContext(), dataset);
+        mAdapter = new NiceSpinnerAdapter<>(getContext(), dataset, mTextColor, mBackgroundSelector);
         setAdapterInternal(mAdapter);
     }
 
     public void setAdapter(@NonNull ListAdapter adapter) {
-        mAdapter = new NiceSpinnerAdapterWrapper(getContext(), adapter);
+        mAdapter = new NiceSpinnerAdapterWrapper(getContext(), adapter, mTextColor, mBackgroundSelector);
         setAdapterInternal(mAdapter);
     }
 
