@@ -2,5 +2,6 @@
 <resources>
     <declare-styleable name="NiceSpinner">
         <attr name="arrowTint" format="color" />
+        <attr name="hideArrow" format="boolean" />
     </declare-styleable>
 </resources>

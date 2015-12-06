@@ -11,7 +11,7 @@ The usage is pretty straightforward. Add the tag into the XML layout, then use t
 
 ```sh
  NiceSpinner niceSpinner = (NiceSpinner) findViewById(R.id.nice_spinner);
- ArrayList<String> dataset = new ArrayList<>(Arrays.asList("One", "Two", "Three", "Four", "Five"));
+ List<String> dataset = new LinkedList<>(Arrays.asList("One", "Two", "Three", "Four", "Five"));
  niceSpinner.attachDataSource(dataset);
 ```
 

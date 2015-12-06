@@ -17,15 +17,13 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,45 +33,41 @@ import java.util.List;
 public class NiceSpinner extends TextView {
 
     private static final int MAX_LEVEL = 10000;
-    private static final int VIEW_LEFT = 0;
-    private static final int VIEW_TOP = 1;
     private static final int DEFAULT_ELEVATION = 16;
     private static final String INSTANCE_STATE = "instance_state";
     private static final String SELECTED_INDEX = "selected_index";
-    private static final String DATASET = "dataset";
     private static final String IS_POPUP_SHOWING = "is_popup_showing";
 
     private int mSelectedIndex;
     private Drawable mDrawable;
     private PopupWindow mPopup;
     private ListView mListView;
+    private NiceSpinnerBaseAdapter mAdapter;
     private AdapterView.OnItemClickListener mOnItemClickListener;
-    private ArrayList mDataset;
-    private int[] mViewBounds;
+    private AdapterView.OnItemSelectedListener mOnItemSelectedListener;
+    private boolean mHideArrow;
 
     @SuppressWarnings("ConstantConditions")
     public NiceSpinner(Context context) {
         super(context);
-        init(null);
+        init(context, null);
     }
 
     public NiceSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(attrs);
+        init(context, attrs);
     }
 
     public NiceSpinner(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(attrs);
+        init(context, attrs);
     }
 
     @Override
     public Parcelable onSaveInstanceState() {
         Bundle bundle = new Bundle();
         bundle.putParcelable(INSTANCE_STATE, super.onSaveInstanceState());
-
         bundle.putInt(SELECTED_INDEX, mSelectedIndex);
-        bundle.putSerializable(DATASET, mDataset);
 
         if (mPopup != null) {
             bundle.putBoolean(IS_POPUP_SHOWING, mPopup.isShowing());
@@ -89,10 +83,10 @@ public class NiceSpinner extends TextView {
             Bundle bundle = (Bundle) savedState;
 
             mSelectedIndex = bundle.getInt(SELECTED_INDEX);
-            mDataset = (ArrayList) bundle.getSerializable(DATASET);
 
-            if (mDataset != null) {
-                setText(mDataset.get(mSelectedIndex).toString());
+            if (mAdapter != null) {
+                setText(mAdapter.getItemInDataset(mSelectedIndex).toString());
+                mAdapter.notifyItemSelected(mSelectedIndex);
             }
 
             if (bundle.getBoolean(IS_POPUP_SHOWING)) {
@@ -113,112 +107,129 @@ public class NiceSpinner extends TextView {
         super.onRestoreInstanceState(savedState);
     }
 
-    private void init(AttributeSet attrs) {
+    private void init(Context context, AttributeSet attrs) {
         Resources resources = getResources();
-        TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.NiceSpinner);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.NiceSpinner);
         int defaultPadding = resources.getDimensionPixelSize(R.dimen.one_and_a_half_grid_unit);
 
         setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-        setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit),
-                defaultPadding, defaultPadding, defaultPadding);
+        setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit), defaultPadding, defaultPadding,
+            defaultPadding);
         setClickable(true);
         setBackgroundResource(R.drawable.selector);
 
-        mListView = new ListView(getContext());
+        mListView = new ListView(context);
+        // Set the spinner's id into the listview to make it pretend to be the right parent in
+        // onItemClick
+        mListView.setId(getId());
         mListView.setDivider(null);
         mListView.setItemsCanFocus(true);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position >= mSelectedIndex && position < mDataset.size()) {
+                if (position >= mSelectedIndex && position < mAdapter.getCount()) {
                     position++;
                 }
+
+                // Need to set selected index before calling listeners or getSelectedIndex() can be
+                // reported incorrectly due to race conditions.
+                mSelectedIndex = position;
 
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClick(parent, view, position, id);
                 }
 
-                mSelectedIndex = position;
-                setText(mDataset.get(position).toString());
+                if (mOnItemSelectedListener != null) {
+                    mOnItemSelectedListener.onItemSelected(parent, view, position, id);
+                }
+
+                mAdapter.notifyItemSelected(position);
+                setText(mAdapter.getItemInDataset(position).toString());
                 dismissDropDown();
             }
         });
 
-        mPopup = new PopupWindow(getContext());
+        mPopup = new PopupWindow(context);
         mPopup.setContentView(mListView);
         mPopup.setOutsideTouchable(true);
+        mPopup.setFocusable(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mPopup.setElevation(DEFAULT_ELEVATION);
-            mPopup.setBackgroundDrawable(
-                    ContextCompat.getDrawable(getContext(), R.drawable.spinner_drawable));
+            mPopup.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.spinner_drawable));
         } else {
-            mPopup.setBackgroundDrawable(ContextCompat.getDrawable(getContext(),
-                    R.drawable.drop_down_shadow));
+            mPopup.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.drop_down_shadow));
         }
 
-        mPopup.setTouchInterceptor(new View.OnTouchListener() {
+        mPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                float x = event.getRawX();
-                float y = event.getRawY();
-
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_OUTSIDE: {
-                        // Compute bounds only once after the first event is fired
-                        if (mViewBounds == null) {
-                            mViewBounds = new int[2];
-                            getLocationInWindow(mViewBounds);
-                        }
-
-                        if (isTouchInsideViewBounds(x, y, mViewBounds, NiceSpinner.this)
-                                && mPopup.isShowing()) {
-                            return true;
-                        }
-
-                        dismissDropDown();
-                    }
-                    break;
+            public void onDismiss() {
+                if (!mHideArrow) {
+                    animateArrow(false);
                 }
-
-                return false;
             }
         });
 
-        Drawable basicDrawable = ContextCompat.getDrawable(getContext(), R.drawable.arrow);
-        int resId = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, -1);
+        mHideArrow = typedArray.getBoolean(R.styleable.NiceSpinner_hideArrow, false);
+        if (!mHideArrow) {
+            Drawable basicDrawable = ContextCompat.getDrawable(context, R.drawable.arrow);
+            int resId = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, -1);
 
-        if (basicDrawable != null) {
-            mDrawable = DrawableCompat.wrap(basicDrawable);
+            if (basicDrawable != null) {
+                mDrawable = DrawableCompat.wrap(basicDrawable);
 
-            if (resId != -1) {
-                DrawableCompat.setTint(mDrawable, resId);
+                if (resId != -1) {
+                    DrawableCompat.setTint(mDrawable, resId);
+                }
             }
+            setCompoundDrawablesWithIntrinsicBounds(null, null, mDrawable, null);
         }
-        setCompoundDrawablesWithIntrinsicBounds(null, null, mDrawable, null);
 
         typedArray.recycle();
-    }
-
-    private static boolean isTouchInsideViewBounds(float x, float y, int[] viewBounds, View view) {
-        return x < viewBounds[VIEW_LEFT] + view.getWidth() && x > viewBounds[VIEW_LEFT]
-                && y < viewBounds[VIEW_TOP] + view.getHeight() && y > viewBounds[VIEW_TOP];
     }
 
     public int getSelectedIndex() {
         return mSelectedIndex;
     }
 
-    public void addOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
+    /**
+     * Set the default spinner item using its index
+     * 
+     * @param position the item's position
+     */
+    public void setSelectedIndex(int position) {
+        if (mAdapter != null) {
+            if (position >= 0 && position <= mAdapter.getCount()) {
+                mAdapter.notifyItemSelected(position);
+                mSelectedIndex = position;
+                setText(mAdapter.getItemInDataset(position).toString());
+            } else {
+                throw new IllegalArgumentException("Position must be lower than adapter count!");
+            }
+        }
+    }
+
+    public void addOnItemClickListener(@NonNull AdapterView.OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
     }
 
-    public <T> void attachDataSource(ArrayList<T> dataset) {
-        if (dataset != null) {
-            mDataset = dataset;
-            mListView.setAdapter(new FullWidthAdapter<>(dataset));
-            setText(mDataset.get(mSelectedIndex).toString());
-        }
+    public void setOnItemSelectedListener(@NonNull AdapterView.OnItemSelectedListener onItemSelectedListener) {
+        mOnItemSelectedListener = onItemSelectedListener;
+    }
+
+    public <T> void attachDataSource(@NonNull List<T> dataset) {
+        mAdapter = new NiceSpinnerAdapter<>(getContext(), dataset);
+        setAdapterInternal(mAdapter);
+    }
+
+    public void setAdapter(@NonNull ListAdapter adapter) {
+        mAdapter = new NiceSpinnerAdapterWrapper(getContext(), adapter);
+        setAdapterInternal(mAdapter);
+    }
+
+    private void setAdapterInternal(@NonNull NiceSpinnerBaseAdapter adapter) {
+        mListView.setAdapter(adapter);
+        setText(adapter.getItemInDataset(mSelectedIndex).toString());
     }
 
     @Override
@@ -250,78 +261,22 @@ public class NiceSpinner extends TextView {
     }
 
     public void dismissDropDown() {
-        animateArrow(false);
+        if (!mHideArrow) {
+            animateArrow(false);
+        }
         mPopup.dismiss();
     }
 
     public void showDropDown() {
-        animateArrow(true);
+        if (!mHideArrow) {
+            animateArrow(true);
+        }
         mPopup.showAsDropDown(this);
     }
 
     public void setTintColor(@ColorRes int resId) {
-        if (mDrawable != null) {
+        if (mDrawable != null && !mHideArrow) {
             DrawableCompat.setTint(mDrawable, getResources().getColor(resId));
-        }
-    }
-
-    private class FullWidthAdapter<T> extends BaseAdapter {
-
-        private final List<T> mItems;
-
-        public FullWidthAdapter(List<T> items) {
-            mItems = items;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public View getView(int position, View convertView, ViewGroup parent) {
-            TextView textView;
-
-            if (convertView == null) {
-                convertView = View.inflate(getContext(), R.layout.spinner_list_item, null);
-                textView = (TextView) convertView.findViewById(R.id.tv_tinted_spinner);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    textView.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.selector));
-                }
-
-                convertView.setTag(new ViewHolder(textView));
-            } else {
-                textView = ((ViewHolder) convertView.getTag()).textView;
-            }
-
-            textView.setText(getItem(position).toString());
-
-            return convertView;
-        }
-
-        @Override
-        public int getCount() {
-            return mItems.size() - 1;
-        }
-
-        @Override
-        public T getItem(int position) {
-            if (position >= mSelectedIndex) {
-                return mItems.get(position + 1);
-            } else {
-                return mItems.get(position);
-            }
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        private class ViewHolder {
-
-            public TextView textView;
-
-            public ViewHolder(TextView textView) {
-                this.textView = textView;
-            }
         }
     }
 }
