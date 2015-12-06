@@ -220,6 +220,8 @@ public class NiceSpinner extends TextView {
     }
 
     private void setAdapterInternal(@NonNull NiceSpinnerBaseAdapter adapter) {
+        // If the adapter needs to be settled again, ensure to reset the selected index as well
+        selectedIndex = 0;
         listView.setAdapter(adapter);
         setText(adapter.getItemInDataset(selectedIndex).toString());
     }
