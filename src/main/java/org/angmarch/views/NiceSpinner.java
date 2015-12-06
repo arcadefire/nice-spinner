@@ -46,6 +46,8 @@ public class NiceSpinner extends TextView {
     private AdapterView.OnItemClickListener onItemClickListener;
     private AdapterView.OnItemSelectedListener onItemSelectedListener;
     private boolean isArrowHide;
+    private int textColor;
+    private int backgroundSelector;
 
     @SuppressWarnings("ConstantConditions")
     public NiceSpinner(Context context) {
@@ -111,7 +113,12 @@ public class NiceSpinner extends TextView {
         setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit), defaultPadding, defaultPadding,
             defaultPadding);
         setClickable(true);
-        setBackgroundResource(R.drawable.selector);
+
+        backgroundSelector = typedArray.getResourceId(R.styleable.NiceSpinner_backgroundSelector, R.drawable.selector);
+        setBackgroundResource(backgroundSelector);
+        textColor = typedArray.getColor(R.styleable.NiceSpinner_textTint, -1);
+        setTextColor(textColor);
+
 
         listView = new ListView(context);
         // Set the spinner's id into the listview to make it pretend to be the right parent in
@@ -119,7 +126,11 @@ public class NiceSpinner extends TextView {
         listView.setId(getId());
         listView.setDivider(null);
         listView.setItemsCanFocus(true);
+        //hide vertical and horizontal scrollbars
+        listView.setVerticalScrollBarEnabled(false);
+        listView.setHorizontalScrollBarEnabled(false);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position >= selectedIndex && position < adapter.getCount()) {
@@ -157,6 +168,7 @@ public class NiceSpinner extends TextView {
         }
 
         popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+
             @Override
             public void onDismiss() {
                 if (!isArrowHide) {
@@ -177,6 +189,7 @@ public class NiceSpinner extends TextView {
             }
             setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
         }
+
         typedArray.recycle();
     }
 
@@ -210,12 +223,12 @@ public class NiceSpinner extends TextView {
     }
 
     public <T> void attachDataSource(@NonNull List<T> dataset) {
-        adapter = new NiceSpinnerAdapter<>(getContext(), dataset);
+        adapter = new NiceSpinnerAdapter<>(getContext(), dataset, textColor, backgroundSelector);
         setAdapterInternal(adapter);
     }
 
     public void setAdapter(@NonNull ListAdapter adapter) {
-        this.adapter = new NiceSpinnerAdapterWrapper(getContext(), adapter);
+        this.adapter = new NiceSpinnerAdapterWrapper(getContext(), adapter, textColor, backgroundSelector);
         setAdapterInternal(this.adapter);
     }
 
