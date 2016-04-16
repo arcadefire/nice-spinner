@@ -38,14 +38,16 @@ public class NiceSpinner extends TextView {
     private static final String SELECTED_INDEX = "selected_index";
     private static final String IS_POPUP_SHOWING = "is_popup_showing";
 
-    private int mSelectedIndex;
-    private Drawable mDrawable;
-    private PopupWindow mPopup;
-    private ListView mListView;
-    private NiceSpinnerBaseAdapter mAdapter;
-    private AdapterView.OnItemClickListener mOnItemClickListener;
-    private AdapterView.OnItemSelectedListener mOnItemSelectedListener;
-    private boolean mHideArrow;
+    private int selectedIndex;
+    private Drawable drawable;
+    private PopupWindow popupWindow;
+    private ListView listView;
+    private NiceSpinnerBaseAdapter adapter;
+    private AdapterView.OnItemClickListener onItemClickListener;
+    private AdapterView.OnItemSelectedListener onItemSelectedListener;
+    private boolean isArrowHide;
+    private int textColor;
+    private int backgroundSelector;
 
     @SuppressWarnings("ConstantConditions")
     public NiceSpinner(Context context) {
@@ -67,13 +69,11 @@ public class NiceSpinner extends TextView {
     public Parcelable onSaveInstanceState() {
         Bundle bundle = new Bundle();
         bundle.putParcelable(INSTANCE_STATE, super.onSaveInstanceState());
-        bundle.putInt(SELECTED_INDEX, mSelectedIndex);
-
-        if (mPopup != null) {
-            bundle.putBoolean(IS_POPUP_SHOWING, mPopup.isShowing());
+        bundle.putInt(SELECTED_INDEX, selectedIndex);
+        if (popupWindow != null) {
+            bundle.putBoolean(IS_POPUP_SHOWING, popupWindow.isShowing());
             dismissDropDown();
         }
-
         return bundle;
     }
 
@@ -81,16 +81,15 @@ public class NiceSpinner extends TextView {
     public void onRestoreInstanceState(Parcelable savedState) {
         if (savedState instanceof Bundle) {
             Bundle bundle = (Bundle) savedState;
+            selectedIndex = bundle.getInt(SELECTED_INDEX);
 
-            mSelectedIndex = bundle.getInt(SELECTED_INDEX);
-
-            if (mAdapter != null) {
-                setText(mAdapter.getItemInDataset(mSelectedIndex).toString());
-                mAdapter.notifyItemSelected(mSelectedIndex);
+            if (adapter != null) {
+                setText(adapter.getItemInDataset(selectedIndex).toString());
+                adapter.notifyItemSelected(selectedIndex);
             }
 
             if (bundle.getBoolean(IS_POPUP_SHOWING)) {
-                if (mPopup != null) {
+                if (popupWindow != null) {
                     // Post the show request into the looper to avoid bad token exception
                     post(new Runnable() {
                         @Override
@@ -100,10 +99,8 @@ public class NiceSpinner extends TextView {
                     });
                 }
             }
-
             savedState = bundle.getParcelable(INSTANCE_STATE);
         }
-
         super.onRestoreInstanceState(savedState);
     }
 
@@ -116,80 +113,88 @@ public class NiceSpinner extends TextView {
         setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit), defaultPadding, defaultPadding,
             defaultPadding);
         setClickable(true);
-        setBackgroundResource(R.drawable.selector);
 
-        mListView = new ListView(context);
+        backgroundSelector = typedArray.getResourceId(R.styleable.NiceSpinner_backgroundSelector, R.drawable.selector);
+        setBackgroundResource(backgroundSelector);
+        textColor = typedArray.getColor(R.styleable.NiceSpinner_textTint, -1);
+        setTextColor(textColor);
+
+
+        listView = new ListView(context);
         // Set the spinner's id into the listview to make it pretend to be the right parent in
         // onItemClick
-        mListView.setId(getId());
-        mListView.setDivider(null);
-        mListView.setItemsCanFocus(true);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setId(getId());
+        listView.setDivider(null);
+        listView.setItemsCanFocus(true);
+        //hide vertical and horizontal scrollbars
+        listView.setVerticalScrollBarEnabled(false);
+        listView.setHorizontalScrollBarEnabled(false);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position >= mSelectedIndex && position < mAdapter.getCount()) {
+                if (position >= selectedIndex && position < adapter.getCount()) {
                     position++;
                 }
 
                 // Need to set selected index before calling listeners or getSelectedIndex() can be
                 // reported incorrectly due to race conditions.
-                mSelectedIndex = position;
+                selectedIndex = position;
 
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(parent, view, position, id);
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(parent, view, position, id);
                 }
 
-                if (mOnItemSelectedListener != null) {
-                    mOnItemSelectedListener.onItemSelected(parent, view, position, id);
+                if (onItemSelectedListener != null) {
+                    onItemSelectedListener.onItemSelected(parent, view, position, id);
                 }
 
-                mAdapter.notifyItemSelected(position);
-                setText(mAdapter.getItemInDataset(position).toString());
+                adapter.notifyItemSelected(position);
+                setText(adapter.getItemInDataset(position).toString());
                 dismissDropDown();
             }
         });
 
-        mPopup = new PopupWindow(context);
-        mPopup.setContentView(mListView);
-        mPopup.setOutsideTouchable(true);
-        mPopup.setFocusable(true);
+        popupWindow = new PopupWindow(context);
+        popupWindow.setContentView(listView);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setFocusable(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mPopup.setElevation(DEFAULT_ELEVATION);
-            mPopup.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.spinner_drawable));
+            popupWindow.setElevation(DEFAULT_ELEVATION);
+            popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.spinner_drawable));
         } else {
-            mPopup.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.drop_down_shadow));
+            popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.drop_down_shadow));
         }
 
-        mPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+
             @Override
             public void onDismiss() {
-                if (!mHideArrow) {
+                if (!isArrowHide) {
                     animateArrow(false);
                 }
             }
         });
 
-        mHideArrow = typedArray.getBoolean(R.styleable.NiceSpinner_hideArrow, false);
-        if (!mHideArrow) {
+        isArrowHide = typedArray.getBoolean(R.styleable.NiceSpinner_hideArrow, false);
+        if (!isArrowHide) {
             Drawable basicDrawable = ContextCompat.getDrawable(context, R.drawable.arrow);
             int resId = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, -1);
-
             if (basicDrawable != null) {
-                mDrawable = DrawableCompat.wrap(basicDrawable);
-
+                drawable = DrawableCompat.wrap(basicDrawable);
                 if (resId != -1) {
-                    DrawableCompat.setTint(mDrawable, resId);
+                    DrawableCompat.setTint(drawable, resId);
                 }
             }
-            setCompoundDrawablesWithIntrinsicBounds(null, null, mDrawable, null);
+            setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
         }
 
         typedArray.recycle();
     }
 
     public int getSelectedIndex() {
-        return mSelectedIndex;
+        return selectedIndex;
     }
 
     /**
@@ -198,11 +203,11 @@ public class NiceSpinner extends TextView {
      * @param position the item's position
      */
     public void setSelectedIndex(int position) {
-        if (mAdapter != null) {
-            if (position >= 0 && position <= mAdapter.getCount()) {
-                mAdapter.notifyItemSelected(position);
-                mSelectedIndex = position;
-                setText(mAdapter.getItemInDataset(position).toString());
+        if (adapter != null) {
+            if (position >= 0 && position <= adapter.getCount()) {
+                adapter.notifyItemSelected(position);
+                selectedIndex = position;
+                setText(adapter.getItemInDataset(position).toString());
             } else {
                 throw new IllegalArgumentException("Position must be lower than adapter count!");
             }
@@ -210,73 +215,74 @@ public class NiceSpinner extends TextView {
     }
 
     public void addOnItemClickListener(@NonNull AdapterView.OnItemClickListener onItemClickListener) {
-        mOnItemClickListener = onItemClickListener;
+        this.onItemClickListener = onItemClickListener;
     }
 
     public void setOnItemSelectedListener(@NonNull AdapterView.OnItemSelectedListener onItemSelectedListener) {
-        mOnItemSelectedListener = onItemSelectedListener;
+        this.onItemSelectedListener = onItemSelectedListener;
     }
 
     public <T> void attachDataSource(@NonNull List<T> dataset) {
-        mAdapter = new NiceSpinnerAdapter<>(getContext(), dataset);
-        setAdapterInternal(mAdapter);
+        adapter = new NiceSpinnerAdapter<>(getContext(), dataset, textColor, backgroundSelector);
+        setAdapterInternal(adapter);
     }
 
     public void setAdapter(@NonNull ListAdapter adapter) {
-        mAdapter = new NiceSpinnerAdapterWrapper(getContext(), adapter);
-        setAdapterInternal(mAdapter);
+        this.adapter = new NiceSpinnerAdapterWrapper(getContext(), adapter, textColor, backgroundSelector);
+        setAdapterInternal(this.adapter);
     }
 
     private void setAdapterInternal(@NonNull NiceSpinnerBaseAdapter adapter) {
-        mListView.setAdapter(adapter);
-        setText(adapter.getItemInDataset(mSelectedIndex).toString());
+        // If the adapter needs to be settled again, ensure to reset the selected index as well
+        selectedIndex = 0;
+        listView.setAdapter(adapter);
+        setText(adapter.getItemInDataset(selectedIndex).toString());
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        mPopup.setWidth(View.MeasureSpec.getSize(widthMeasureSpec));
-        mPopup.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+        popupWindow.setWidth(View.MeasureSpec.getSize(widthMeasureSpec));
+        popupWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
-            if (!mPopup.isShowing()) {
+            if (!popupWindow.isShowing()) {
                 showDropDown();
             } else {
                 dismissDropDown();
             }
         }
-
         return super.onTouchEvent(event);
     }
 
     private void animateArrow(boolean shouldRotateUp) {
         int start = shouldRotateUp ? 0 : MAX_LEVEL;
         int end = shouldRotateUp ? MAX_LEVEL : 0;
-        ObjectAnimator animator = ObjectAnimator.ofInt(mDrawable, "level", start, end);
+        ObjectAnimator animator = ObjectAnimator.ofInt(drawable, "level", start, end);
         animator.setInterpolator(new LinearOutSlowInInterpolator());
         animator.start();
     }
 
     public void dismissDropDown() {
-        if (!mHideArrow) {
+        if (!isArrowHide) {
             animateArrow(false);
         }
-        mPopup.dismiss();
+        popupWindow.dismiss();
     }
 
     public void showDropDown() {
-        if (!mHideArrow) {
+        if (!isArrowHide) {
             animateArrow(true);
         }
-        mPopup.showAsDropDown(this);
+        popupWindow.showAsDropDown(this);
     }
 
     public void setTintColor(@ColorRes int resId) {
-        if (mDrawable != null && !mHideArrow) {
-            DrawableCompat.setTint(mDrawable, getResources().getColor(resId));
+        if (drawable != null && !isArrowHide) {
+            DrawableCompat.setTint(drawable, ContextCompat.getColor(getContext(), resId));
         }
     }
 }
