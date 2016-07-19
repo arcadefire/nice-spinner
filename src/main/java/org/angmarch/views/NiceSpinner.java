@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -104,6 +105,29 @@ public class NiceSpinner extends TextView {
         super.onRestoreInstanceState(savedState);
     }
 
+    /**
+     * over write the setEnabled method,when you set true,you can see the arrow drawable and you can click this spinner;
+     * when you set false, the arrow drawable will be hided and this spinner will do nothing if you click it.
+     *
+     * @param enabled
+     */
+    //the past version setEnabled is no use
+    @Override
+    public void setEnabled(boolean enabled) {
+        boolean isEnable = isEnabled();
+        if (isEnable != enabled) {
+            //若设置无效,则不显示下拉小图标
+            if (enabled) {
+                isArrowHide = false;
+                this.setCompoundArrowDrawable(drawable);
+            } else {
+                isArrowHide = true;
+                this.setCompoundArrowDrawable(drawable);
+            }
+            super.setEnabled(enabled);
+        }
+    }
+
     private void init(Context context, AttributeSet attrs) {
         Resources resources = getResources();
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.NiceSpinner);
@@ -111,7 +135,7 @@ public class NiceSpinner extends TextView {
 
         setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
         setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit), defaultPadding, defaultPadding,
-            defaultPadding);
+                defaultPadding);
         setClickable(true);
 
         backgroundSelector = typedArray.getResourceId(R.styleable.NiceSpinner_backgroundSelector, R.drawable.selector);
@@ -178,19 +202,101 @@ public class NiceSpinner extends TextView {
         });
 
         isArrowHide = typedArray.getBoolean(R.styleable.NiceSpinner_hideArrow, false);
-        if (!isArrowHide) {
-            Drawable basicDrawable = ContextCompat.getDrawable(context, R.drawable.arrow);
-            int resId = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, -1);
-            if (basicDrawable != null) {
-                drawable = DrawableCompat.wrap(basicDrawable);
-                if (resId != -1) {
-                    DrawableCompat.setTint(drawable, resId);
-                }
-            }
-            setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
-        }
+//        if (!isArrowHide) {
+//            Drawable basicDrawable = ContextCompat.getDrawable(context, R.drawable.arrow);
+//            int resId = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, -1);
+//            if (basicDrawable != null) {
+//                drawable = DrawableCompat.wrap(basicDrawable);
+//                if (resId != -1) {
+//                    DrawableCompat.setTint(drawable, resId);
+//                }
+//            }
+//            setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
+//        }
+
+        //change the default value from -1 to integer max value
+        //because -1 is the white color,event users never set the attr it will be changed too
+        int drawableTint = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, Integer.MAX_VALUE);
+        //get the drawable res id, res id default value is 0
+        //users can use their custom drawable to be the arrow drawable.
+        int drawableId = typedArray.getResourceId(R.styleable.NiceSpinner_arrowDrawable, 0);
+        //load and save the drawable
+        drawable = this.initArrowDrawable(drawableId, drawableTint);
+        //set the drawable to textView
+        this.setCompoundArrowDrawable(drawable);
 
         typedArray.recycle();
+    }
+
+    //load and save the drawable
+    private Drawable initArrowDrawable(int drawableId, int drawableTint) {
+        Drawable basicDrawable = null;
+        //if the drawable id is unset,load the system drawable
+        if (drawableId != 0) {
+            basicDrawable = this.getContext().getResources().getDrawable(drawableId);
+        } else {
+            basicDrawable = ContextCompat.getDrawable(this.getContext(), R.drawable.arrow);
+        }
+        if (basicDrawable != null) {
+            basicDrawable = DrawableCompat.wrap(basicDrawable);
+            //if the tint color is set,use the color
+            if (drawableTint != Integer.MAX_VALUE && drawableTint != 0) {
+                DrawableCompat.setTint(basicDrawable, drawableTint);
+            }
+        }
+
+        return basicDrawable;
+    }
+
+    //set the arrow drawable to textView
+    private boolean setCompoundArrowDrawable(Drawable drawable) {
+        //if drawable is null, set nothing.
+        if (!isArrowHide && drawable != null) {
+            setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
+            return true;
+        } else {
+            setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+            return false;
+        }
+    }
+
+    /**
+     * set arrow drawable resource id with tint color
+     *
+     * @param drawableId
+     * @param tintColor
+     */
+    public void setArrowDrawable(@DrawableRes @ColorRes int drawableId, @ColorRes int tintColor) {
+        Drawable arrowDrawable = this.initArrowDrawable(drawableId, tintColor);
+        if (this.setCompoundArrowDrawable(arrowDrawable)) {
+            drawable = arrowDrawable;
+            this.invalidate();
+        }
+    }
+
+    /**
+     * set arrow drawable resource id
+     *
+     * @param drawableId
+     */
+    public void setArrowDrawable(@DrawableRes @ColorRes int drawableId) {
+        Drawable arrowDrawable = this.initArrowDrawable(drawableId, 0);
+        if (this.setCompoundArrowDrawable(arrowDrawable)) {
+            drawable = arrowDrawable;
+            this.invalidate();
+        }
+    }
+
+    /**
+     * set arrow drawable directly
+     *
+     * @param arrowDrawable
+     */
+    public void setArrowDrawable(Drawable arrowDrawable) {
+        if (this.setCompoundArrowDrawable(arrowDrawable)) {
+            drawable = arrowDrawable;
+            this.invalidate();
+        }
     }
 
     public int getSelectedIndex() {
@@ -199,7 +305,7 @@ public class NiceSpinner extends TextView {
 
     /**
      * Set the default spinner item using its index
-     * 
+     *
      * @param position the item's position
      */
     public void setSelectedIndex(int position) {
