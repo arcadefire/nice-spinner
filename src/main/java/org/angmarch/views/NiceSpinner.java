@@ -9,10 +9,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.ColorRes;
-import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
+import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -22,7 +22,6 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
-import android.widget.TextView;
 
 import java.util.List;
 
@@ -30,7 +29,7 @@ import java.util.List;
  * @author angelo.marchesin
  */
 @SuppressWarnings("unused")
-public class NiceSpinner extends TextView {
+public class NiceSpinner extends AppCompatTextView {
 
     private static final int MAX_LEVEL = 10000;
     private static final int DEFAULT_ELEVATION = 16;
@@ -49,7 +48,6 @@ public class NiceSpinner extends TextView {
     private int textColor;
     private int backgroundSelector;
 
-    @SuppressWarnings("ConstantConditions")
     public NiceSpinner(Context context) {
         super(context);
         init(context, null);
@@ -109,7 +107,7 @@ public class NiceSpinner extends TextView {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.NiceSpinner);
         int defaultPadding = resources.getDimensionPixelSize(R.dimen.one_and_a_half_grid_unit);
 
-        setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+        setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
         setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit), defaultPadding, defaultPadding,
             defaultPadding);
         setClickable(true);
@@ -214,25 +212,25 @@ public class NiceSpinner extends TextView {
         }
     }
 
-    public void addOnItemClickListener(@NonNull AdapterView.OnItemClickListener onItemClickListener) {
+    public void addOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 
-    public void setOnItemSelectedListener(@NonNull AdapterView.OnItemSelectedListener onItemSelectedListener) {
+    public void setOnItemSelectedListener(AdapterView.OnItemSelectedListener onItemSelectedListener) {
         this.onItemSelectedListener = onItemSelectedListener;
     }
 
-    public <T> void attachDataSource(@NonNull List<T> dataset) {
+    public <T> void attachDataSource(List<T> dataset) {
         adapter = new NiceSpinnerAdapter<>(getContext(), dataset, textColor, backgroundSelector);
         setAdapterInternal(adapter);
     }
 
-    public void setAdapter(@NonNull ListAdapter adapter) {
+    public void setAdapter(ListAdapter adapter) {
         this.adapter = new NiceSpinnerAdapterWrapper(getContext(), adapter, textColor, backgroundSelector);
         setAdapterInternal(this.adapter);
     }
 
-    private void setAdapterInternal(@NonNull NiceSpinnerBaseAdapter adapter) {
+    private void setAdapterInternal(NiceSpinnerBaseAdapter adapter) {
         // If the adapter needs to be settled again, ensure to reset the selected index as well
         selectedIndex = 0;
         listView.setAdapter(adapter);
@@ -247,7 +245,7 @@ public class NiceSpinner extends TextView {
     }
 
     @Override
-    public boolean onTouchEvent(@NonNull MotionEvent event) {
+    public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
             if (!popupWindow.isShowing()) {
                 showDropDown();
