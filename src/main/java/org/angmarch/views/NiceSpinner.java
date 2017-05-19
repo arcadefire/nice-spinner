@@ -111,7 +111,7 @@ public class NiceSpinner extends AppCompatTextView {
 
         setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
         setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit), defaultPadding, defaultPadding,
-            defaultPadding);
+                defaultPadding);
         setClickable(true);
 
         backgroundSelector = typedArray.getResourceId(R.styleable.NiceSpinner_backgroundSelector, R.drawable.selector);
@@ -188,7 +188,6 @@ public class NiceSpinner extends AppCompatTextView {
             }
             setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
         }
-
         typedArray.recycle();
     }
 
@@ -196,9 +195,8 @@ public class NiceSpinner extends AppCompatTextView {
         TypedValue typedValue = new TypedValue();
         context.getTheme()
                 .resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
-        TypedArray typedArray =
-                context.obtainStyledAttributes(typedValue.data, new int[]{
-                        android.R.attr.textColorPrimary});
+        TypedArray typedArray = context.obtainStyledAttributes(typedValue.data,
+                new int[]{android.R.attr.textColorPrimary});
         int defaultTextColor = typedArray.getColor(0, Color.BLACK);
         typedArray.recycle();
         return defaultTextColor;
@@ -210,7 +208,7 @@ public class NiceSpinner extends AppCompatTextView {
 
     /**
      * Set the default spinner item using its index
-     * 
+     *
      * @param position the item's position
      */
     public void setSelectedIndex(int position) {
@@ -233,8 +231,8 @@ public class NiceSpinner extends AppCompatTextView {
         this.onItemSelectedListener = onItemSelectedListener;
     }
 
-    public <T> void attachDataSource(List<T> dataset) {
-        adapter = new NiceSpinnerAdapter<>(getContext(), dataset, textColor, backgroundSelector);
+    public <T> void attachDataSource(List<T> list) {
+        adapter = new NiceSpinnerAdapter<>(getContext(), list, textColor, backgroundSelector);
         setAdapterInternal(adapter);
     }
 
