@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -114,9 +116,8 @@ public class NiceSpinner extends AppCompatTextView {
 
         backgroundSelector = typedArray.getResourceId(R.styleable.NiceSpinner_backgroundSelector, R.drawable.selector);
         setBackgroundResource(backgroundSelector);
-        textColor = typedArray.getColor(R.styleable.NiceSpinner_textTint, -1);
+        textColor = typedArray.getColor(R.styleable.NiceSpinner_textTint, getDefaultTextColor(context));
         setTextColor(textColor);
-
 
         listView = new ListView(context);
         // Set the spinner's id into the listview to make it pretend to be the right parent in
@@ -189,6 +190,18 @@ public class NiceSpinner extends AppCompatTextView {
         }
 
         typedArray.recycle();
+    }
+
+    private int getDefaultTextColor(Context context) {
+        TypedValue typedValue = new TypedValue();
+        context.getTheme()
+                .resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
+        TypedArray typedArray =
+                context.obtainStyledAttributes(typedValue.data, new int[]{
+                        android.R.attr.textColorPrimary});
+        int defaultTextColor = typedArray.getColor(0, Color.BLACK);
+        typedArray.recycle();
+        return defaultTextColor;
     }
 
     public int getSelectedIndex() {
