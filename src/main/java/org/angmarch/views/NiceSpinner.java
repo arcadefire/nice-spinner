@@ -257,7 +257,7 @@ public class NiceSpinner extends AppCompatTextView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_UP) {
+        if (isEnabled() && event.getAction() == MotionEvent.ACTION_UP) {
             if (!popupWindow.isShowing()) {
                 showDropDown();
             } else {
