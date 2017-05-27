@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
@@ -38,17 +39,21 @@ public class NiceSpinner extends AppCompatTextView {
     private static final String INSTANCE_STATE = "instance_state";
     private static final String SELECTED_INDEX = "selected_index";
     private static final String IS_POPUP_SHOWING = "is_popup_showing";
+    private static final String IS_ARROW_HIDDEN = "is_arrow_hidden";
+    private static final String ARROW_DRAWABLE_RES_ID = "arrow_drawable_res_id";
 
     private int selectedIndex;
-    private Drawable drawable;
+    private Drawable arrowDrawable;
     private PopupWindow popupWindow;
     private ListView listView;
     private NiceSpinnerBaseAdapter adapter;
     private AdapterView.OnItemClickListener onItemClickListener;
     private AdapterView.OnItemSelectedListener onItemSelectedListener;
-    private boolean isArrowHide;
+    private boolean isArrowHidden;
     private int textColor;
     private int backgroundSelector;
+    private @DrawableRes int arrowDrawableResId;
+    private int arrowDrawableTint;
 
     public NiceSpinner(Context context) {
         super(context);
@@ -65,11 +70,12 @@ public class NiceSpinner extends AppCompatTextView {
         init(context, attrs);
     }
 
-    @Override
-    public Parcelable onSaveInstanceState() {
+    @Override public Parcelable onSaveInstanceState() {
         Bundle bundle = new Bundle();
         bundle.putParcelable(INSTANCE_STATE, super.onSaveInstanceState());
         bundle.putInt(SELECTED_INDEX, selectedIndex);
+        bundle.putBoolean(IS_ARROW_HIDDEN, isArrowHidden);
+        bundle.putInt(ARROW_DRAWABLE_RES_ID, arrowDrawableResId);
         if (popupWindow != null) {
             bundle.putBoolean(IS_POPUP_SHOWING, popupWindow.isShowing());
             dismissDropDown();
@@ -77,8 +83,7 @@ public class NiceSpinner extends AppCompatTextView {
         return bundle;
     }
 
-    @Override
-    public void onRestoreInstanceState(Parcelable savedState) {
+    @Override public void onRestoreInstanceState(Parcelable savedState) {
         if (savedState instanceof Bundle) {
             Bundle bundle = (Bundle) savedState;
             selectedIndex = bundle.getInt(SELECTED_INDEX);
@@ -99,6 +104,9 @@ public class NiceSpinner extends AppCompatTextView {
                     });
                 }
             }
+
+            isArrowHidden = bundle.getBoolean(IS_ARROW_HIDDEN, false);
+            arrowDrawableResId = bundle.getInt(ARROW_DRAWABLE_RES_ID);
             savedState = bundle.getParcelable(INSTANCE_STATE);
         }
         super.onRestoreInstanceState(savedState);
@@ -167,28 +175,43 @@ public class NiceSpinner extends AppCompatTextView {
         }
 
         popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-
             @Override
             public void onDismiss() {
-                if (!isArrowHide) {
+                if (!isArrowHidden) {
                     animateArrow(false);
                 }
             }
         });
 
-        isArrowHide = typedArray.getBoolean(R.styleable.NiceSpinner_hideArrow, false);
-        if (!isArrowHide) {
-            Drawable basicDrawable = ContextCompat.getDrawable(context, R.drawable.arrow);
-            int resId = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, -1);
-            if (basicDrawable != null) {
-                drawable = DrawableCompat.wrap(basicDrawable);
-                if (resId != -1) {
-                    DrawableCompat.setTint(drawable, resId);
-                }
-            }
-            setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
-        }
+        arrowDrawableTint = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, Integer.MAX_VALUE);
+        arrowDrawableResId = typedArray.getResourceId(R.styleable.NiceSpinner_arrowDrawable, R.drawable.arrow);
         typedArray.recycle();
+    }
+
+    @Override
+    protected void onVisibilityChanged(View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        arrowDrawable = initArrowDrawable(arrowDrawableTint);
+        setArrowDrawableOrHide(arrowDrawable);
+    }
+
+    private Drawable initArrowDrawable(int drawableTint) {
+        Drawable drawable = ContextCompat.getDrawable(getContext(), arrowDrawableResId);
+        if (drawable != null) {
+            drawable = DrawableCompat.wrap(drawable);
+            if (drawableTint != Integer.MAX_VALUE && drawableTint != 0) {
+                DrawableCompat.setTint(drawable, drawableTint);
+            }
+        }
+        return drawable;
+    }
+
+    private void setArrowDrawableOrHide(Drawable drawable) {
+        if (!isArrowHidden && drawable != null) {
+            setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
+        } else {
+            setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+        }
     }
 
     private int getDefaultTextColor(Context context) {
@@ -204,6 +227,17 @@ public class NiceSpinner extends AppCompatTextView {
 
     public int getSelectedIndex() {
         return selectedIndex;
+    }
+
+    public void setArrowDrawable(@DrawableRes @ColorRes int drawableId) {
+        arrowDrawableResId = drawableId;
+        arrowDrawable = initArrowDrawable(R.drawable.arrow);
+        setArrowDrawableOrHide(arrowDrawable);
+    }
+
+    public void setArrowDrawable(Drawable drawable) {
+        arrowDrawable = drawable;
+        setArrowDrawableOrHide(arrowDrawable);
     }
 
     /**
@@ -257,7 +291,7 @@ public class NiceSpinner extends AppCompatTextView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_UP) {
+        if (isEnabled() && event.getAction() == MotionEvent.ACTION_UP) {
             if (!popupWindow.isShowing()) {
                 showDropDown();
             } else {
@@ -270,28 +304,42 @@ public class NiceSpinner extends AppCompatTextView {
     private void animateArrow(boolean shouldRotateUp) {
         int start = shouldRotateUp ? 0 : MAX_LEVEL;
         int end = shouldRotateUp ? MAX_LEVEL : 0;
-        ObjectAnimator animator = ObjectAnimator.ofInt(drawable, "level", start, end);
+        ObjectAnimator animator = ObjectAnimator.ofInt(arrowDrawable, "level", start, end);
         animator.setInterpolator(new LinearOutSlowInInterpolator());
         animator.start();
     }
 
     public void dismissDropDown() {
-        if (!isArrowHide) {
+        if (!isArrowHidden) {
             animateArrow(false);
         }
         popupWindow.dismiss();
     }
 
     public void showDropDown() {
-        if (!isArrowHide) {
+        if (!isArrowHidden) {
             animateArrow(true);
         }
         popupWindow.showAsDropDown(this);
     }
 
     public void setTintColor(@ColorRes int resId) {
-        if (drawable != null && !isArrowHide) {
-            DrawableCompat.setTint(drawable, ContextCompat.getColor(getContext(), resId));
+        if (arrowDrawable != null && !isArrowHidden) {
+            DrawableCompat.setTint(arrowDrawable, ContextCompat.getColor(getContext(), resId));
         }
+    }
+
+    public void hideArrow() {
+        isArrowHidden = true;
+        setArrowDrawableOrHide(arrowDrawable);
+    }
+
+    public void showArrow() {
+        isArrowHidden = false;
+        setArrowDrawableOrHide(arrowDrawable);
+    }
+
+    public boolean isArrowHidden() {
+        return isArrowHidden;
     }
 }
