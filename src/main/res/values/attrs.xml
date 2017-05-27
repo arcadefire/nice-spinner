@@ -3,6 +3,7 @@
     <declare-styleable name="NiceSpinner">
         <attr name="arrowTint" format="color" />
         <attr name="hideArrow" format="boolean" />
+        <attr name="arrowDrawable" format="reference|color"/>
         <attr name="backgroundSelector" format="integer"/>
         <attr name="textTint" format="color"/>
     </declare-styleable>
