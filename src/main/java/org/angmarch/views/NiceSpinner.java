@@ -90,7 +90,7 @@ public class NiceSpinner extends AppCompatTextView {
 
             if (adapter != null) {
                 setText(adapter.getItemInDataset(selectedIndex).toString());
-                adapter.notifyItemSelected(selectedIndex);
+                adapter.setSelectedIndex(selectedIndex);
             }
 
             if (bundle.getBoolean(IS_POPUP_SHOWING)) {
@@ -156,7 +156,7 @@ public class NiceSpinner extends AppCompatTextView {
                     onItemSelectedListener.onItemSelected(parent, view, position, id);
                 }
 
-                adapter.notifyItemSelected(position);
+                adapter.setSelectedIndex(position);
                 setText(adapter.getItemInDataset(position).toString());
                 dismissDropDown();
             }
@@ -249,7 +249,7 @@ public class NiceSpinner extends AppCompatTextView {
     public void setSelectedIndex(int position) {
         if (adapter != null) {
             if (position >= 0 && position <= adapter.getCount()) {
-                adapter.notifyItemSelected(position);
+                adapter.setSelectedIndex(position);
                 selectedIndex = position;
                 setText(adapter.getItemInDataset(position).toString());
             } else {
