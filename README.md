@@ -15,6 +15,17 @@ The usage is pretty straightforward. Add the tag into the XML layout, then use t
  niceSpinner.attachDataSource(dataset);
 ```
 
+You can add attributes to customize the view. Available attributes:
+
+| name                      | type      | info                                                   |
+|------------------------   |-----------|--------------------------------------------------------|
+| arrowTint                 | color     | sets the color on the drop-down arrow                  |
+| hideArrow                 | boolean   | set whether show or hide the drop-down arrow           |
+| arrowDrawable             | reference | set the drawable of the drop-down arrow                |
+| textTint                  | color     | set the text color                                     |
+| dropDownListPaddingBottom | dimension | set the bottom padding of the drop-down list           |
+| backgroundSelector        | dimension | set the background select for the drop-down list rows  |
+
 How to include
 ---
 
