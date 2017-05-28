@@ -20,7 +20,6 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -52,8 +51,9 @@ public class NiceSpinner extends AppCompatTextView {
     private boolean isArrowHidden;
     private int textColor;
     private int backgroundSelector;
-    private @DrawableRes int arrowDrawableResId;
     private int arrowDrawableTint;
+    private int dropDownListPaddingBottom;
+    private @DrawableRes int arrowDrawableResId;
 
     public NiceSpinner(Context context) {
         super(context);
@@ -185,11 +185,12 @@ public class NiceSpinner extends AppCompatTextView {
 
         arrowDrawableTint = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, Integer.MAX_VALUE);
         arrowDrawableResId = typedArray.getResourceId(R.styleable.NiceSpinner_arrowDrawable, R.drawable.arrow);
+        dropDownListPaddingBottom =
+                typedArray.getDimensionPixelSize(R.styleable.NiceSpinner_dropDownListPaddingBottom, 0);
         typedArray.recycle();
     }
 
-    @Override
-    protected void onVisibilityChanged(View changedView, int visibility) {
+    @Override protected void onVisibilityChanged(View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
         arrowDrawable = initArrowDrawable(arrowDrawableTint);
         setArrowDrawableOrHide(arrowDrawable);
@@ -282,15 +283,14 @@ public class NiceSpinner extends AppCompatTextView {
         setText(adapter.getItemInDataset(selectedIndex).toString());
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        popupWindow.setWidth(View.MeasureSpec.getSize(widthMeasureSpec));
-        popupWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+    @Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        listView.measure(widthMeasureSpec, heightMeasureSpec);
+        popupWindow.setWidth(View.MeasureSpec.getSize(widthMeasureSpec));
+        popupWindow.setHeight(listView.getMeasuredHeight() - getMeasuredHeight() - dropDownListPaddingBottom);
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    @Override public boolean onTouchEvent(MotionEvent event) {
         if (isEnabled() && event.getAction() == MotionEvent.ACTION_UP) {
             if (!popupWindow.isShowing()) {
                 showDropDown();
@@ -341,5 +341,13 @@ public class NiceSpinner extends AppCompatTextView {
 
     public boolean isArrowHidden() {
         return isArrowHidden;
+    }
+
+    public void setDropDownListPaddingBottom(int paddingBottom) {
+        dropDownListPaddingBottom = paddingBottom;
+    }
+
+    public int getDropDownListPaddingBottom() {
+        return dropDownListPaddingBottom;
     }
 }
