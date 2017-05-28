@@ -1,4 +1,4 @@
-# Nice Spinner
+# Nice Spinner [![](https://jitpack.io/v/arcadefire/nice-spinner.svg)](https://jitpack.io/#arcadefire/nice-spinner)
 
 NiceSpinner is a re-implementation of the default Android's spinner, with a nice arrow animation and a different way to display its content.
 
