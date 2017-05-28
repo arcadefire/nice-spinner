@@ -15,6 +15,7 @@ The usage is pretty straightforward. Add the tag into the XML layout, then use t
  niceSpinner.attachDataSource(dataset);
 ```
 
+#### Attributes
 You can add attributes to customize the view. Available attributes:
 
 | name                      | type      | info                                                   |
