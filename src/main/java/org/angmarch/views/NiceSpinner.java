@@ -90,7 +90,6 @@ public class NiceSpinner extends AppCompatTextView {
         bundle.putInt(ARROW_DRAWABLE_RES_ID, arrowDrawableResId);
         if (popupWindow != null) {
             bundle.putBoolean(IS_POPUP_SHOWING, popupWindow.isShowing());
-            dismissDropDown();
         }
         return bundle;
     }
