@@ -25,7 +25,7 @@ You can add attributes to customize the view. Available attributes:
 | arrowDrawable             | reference | set the drawable of the drop-down arrow                |
 | textTint                  | color     | set the text color                                     |
 | dropDownListPaddingBottom | dimension | set the bottom padding of the drop-down list           |
-| backgroundSelector        | dimension | set the background select for the drop-down list rows  |
+| backgroundSelector        | dimension | set the background selector for the drop-down list rows  |
 
 How to include
 ---
