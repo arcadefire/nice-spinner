@@ -27,12 +27,16 @@ import android.widget.TextView;
 @SuppressWarnings("unused")
 public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
 
+    private final SpinnerTextFormatter spinnerTextFormatter;
+
     private int textColor;
     private int backgroundSelector;
 
     int selectedIndex;
 
-    NiceSpinnerBaseAdapter(Context context, int textColor, int backgroundSelector) {
+    NiceSpinnerBaseAdapter(Context context, int textColor, int backgroundSelector,
+                           SpinnerTextFormatter spinnerTextFormatter) {
+        this.spinnerTextFormatter = spinnerTextFormatter;
         this.backgroundSelector = backgroundSelector;
         this.textColor = textColor;
     }
@@ -53,7 +57,7 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
             textView = ((ViewHolder) convertView.getTag()).textView;
         }
 
-        textView.setText(getItem(position).toString());
+        textView.setText(spinnerTextFormatter.format(getItem(position).toString()));
         textView.setTextColor(textColor);
         return convertView;
     }

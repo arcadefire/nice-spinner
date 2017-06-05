@@ -67,6 +67,8 @@ public class NiceSpinner extends AppCompatTextView {
     private int dropDownListPaddingBottom;
     private @DrawableRes int arrowDrawableResId;
 
+    private SpinnerTextFormatter spinnerTextFormatter = new SimpleSpinnerTextFormatter();
+
     public NiceSpinner(Context context) {
         super(context);
         init(context, null);
@@ -278,12 +280,14 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     public <T> void attachDataSource(List<T> list) {
-        adapter = new NiceSpinnerAdapter<>(getContext(), list, textColor, backgroundSelector);
+        adapter = new NiceSpinnerAdapter<>(getContext(), list, textColor, backgroundSelector,
+                spinnerTextFormatter);
         setAdapterInternal(adapter);
     }
 
     public void setAdapter(ListAdapter adapter) {
-        this.adapter = new NiceSpinnerAdapterWrapper(getContext(), adapter, textColor, backgroundSelector);
+        this.adapter = new NiceSpinnerAdapterWrapper(getContext(), adapter, textColor, backgroundSelector,
+                spinnerTextFormatter);
         setAdapterInternal(this.adapter);
     }
 
@@ -360,5 +364,9 @@ public class NiceSpinner extends AppCompatTextView {
 
     public int getDropDownListPaddingBottom() {
         return dropDownListPaddingBottom;
+    }
+
+    public void setSpinnerTextFormatter(SpinnerTextFormatter spinnerTextFormatter) {
+        this.spinnerTextFormatter = spinnerTextFormatter;
     }
 }
