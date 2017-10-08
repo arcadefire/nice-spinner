@@ -42,7 +42,6 @@ import java.util.List;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@SuppressWarnings("unused")
 public class NiceSpinner extends AppCompatTextView {
 
     private static final int MAX_LEVEL = 10000;
@@ -196,6 +195,7 @@ public class NiceSpinner extends AppCompatTextView {
             }
         });
 
+        isArrowHidden = typedArray.getBoolean(R.styleable.NiceSpinner_hideArrow, false);
         arrowDrawableTint = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, Integer.MAX_VALUE);
         arrowDrawableResId = typedArray.getResourceId(R.styleable.NiceSpinner_arrowDrawable, R.drawable.arrow);
         dropDownListPaddingBottom =
