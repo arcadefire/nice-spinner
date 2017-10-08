@@ -1,6 +1,7 @@
 package org.angmarch.views;
 
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -16,6 +17,7 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -51,6 +53,7 @@ public class NiceSpinner extends AppCompatTextView {
     private static final String IS_POPUP_SHOWING = "is_popup_showing";
     private static final String IS_ARROW_HIDDEN = "is_arrow_hidden";
     private static final String ARROW_DRAWABLE_RES_ID = "arrow_drawable_res_id";
+    public static final int VERTICAL_OFFSET = 1;
 
     private int selectedIndex;
     private Drawable arrowDrawable;
@@ -63,9 +66,10 @@ public class NiceSpinner extends AppCompatTextView {
     private int textColor;
     private int backgroundSelector;
     private int arrowDrawableTint;
+    private int displayHeight;
+    private int parentVerticalOffset;
     private int dropDownListPaddingBottom;
     private @DrawableRes int arrowDrawableResId;
-
     private SpinnerTextFormatter spinnerTextFormatter = new SimpleSpinnerTextFormatter();
 
     public NiceSpinner(Context context) {
@@ -201,6 +205,26 @@ public class NiceSpinner extends AppCompatTextView {
         dropDownListPaddingBottom =
                 typedArray.getDimensionPixelSize(R.styleable.NiceSpinner_dropDownListPaddingBottom, 0);
         typedArray.recycle();
+
+        measureDisplayHeight();
+    }
+
+    private void measureDisplayHeight() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        Activity activity = (Activity) getContext();
+        activity.getWindowManager()
+                .getDefaultDisplay()
+                .getMetrics(displayMetrics);
+        displayHeight = displayMetrics.heightPixels;
+    }
+
+    private int getParentVerticalOffset() {
+        if (parentVerticalOffset > 0) {
+            return parentVerticalOffset;
+        }
+        int[] locationOnScreen = new int[2];
+        getLocationOnScreen(locationOnScreen);
+        return parentVerticalOffset = locationOnScreen[VERTICAL_OFFSET];
     }
 
     @Override protected void onVisibilityChanged(View changedView, int visibility) {
@@ -298,13 +322,6 @@ public class NiceSpinner extends AppCompatTextView {
         setText(adapter.getItemInDataset(selectedIndex).toString());
     }
 
-    @Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        listView.measure(widthMeasureSpec, heightMeasureSpec);
-        popupWindow.setWidth(View.MeasureSpec.getSize(widthMeasureSpec));
-        popupWindow.setHeight(listView.getMeasuredHeight() - getMeasuredHeight() - dropDownListPaddingBottom);
-    }
-
     @Override public boolean onTouchEvent(MotionEvent event) {
         if (isEnabled() && event.getAction() == MotionEvent.ACTION_UP) {
             if (!popupWindow.isShowing()) {
@@ -335,7 +352,18 @@ public class NiceSpinner extends AppCompatTextView {
         if (!isArrowHidden) {
             animateArrow(true);
         }
+        measurePopUpDimension();
         popupWindow.showAsDropDown(this);
+    }
+
+    private void measurePopUpDimension() {
+        int widthSpec = MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY);
+        int heightSpec = MeasureSpec.makeMeasureSpec(
+                displayHeight - getParentVerticalOffset() - getMeasuredHeight(),
+                MeasureSpec.AT_MOST);
+        listView.measure(widthSpec, heightSpec);
+        popupWindow.setWidth(listView.getMeasuredWidth());
+        popupWindow.setHeight(listView.getMeasuredHeight() - dropDownListPaddingBottom);
     }
 
     public void setTintColor(@ColorRes int resId) {
