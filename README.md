@@ -10,11 +10,11 @@ It follows the material design guidelines, and it is compatible starting from Ap
 The usage is pretty straightforward. Add the tag into the XML layout, then use this snippet to populate with contents:
 
 ```xml
-	    <org.angmarch.views.NiceSpinner
-        android:id="@+id/nice_spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"/>
+ <org.angmarch.views.NiceSpinner
+   android:id="@+id/nice_spinner"
+   android:layout_width="wrap_content"
+   android:layout_height="wrap_content"
+   android:layout_margin="16dp"/>
 ```
 * Note: change layout_width to atleast the width of the larget item on the list to prevent resizing
 
