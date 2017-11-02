@@ -7,8 +7,18 @@ It follows the material design guidelines, and it is compatible starting from Ap
 ![alt tag](nice-spinner.gif)
 
 ### Usage
-The usage is pretty straightforward. Add the tag into the XML layout, then use this snippet to populate with contents:
 
+The usage is pretty straightforward. Add the tag into the XML layout:
+```xml
+ <org.angmarch.views.NiceSpinner
+   android:id="@+id/nice_spinner"
+   android:layout_width="wrap_content"
+   android:layout_height="wrap_content"
+   android:layout_margin="16dp"/>
+```
+* Note: change `layout_width` to at least the width of the largest item on the list to prevent resizing
+
+ Then use this snippet to populate with contents:
 ```java
  NiceSpinner niceSpinner = (NiceSpinner) findViewById(R.id.nice_spinner);
  List<String> dataset = new LinkedList<>(Arrays.asList("One", "Two", "Three", "Four", "Five"));
