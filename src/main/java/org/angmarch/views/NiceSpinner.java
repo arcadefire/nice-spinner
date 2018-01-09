@@ -336,11 +336,18 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     private void animateArrow(boolean shouldRotateUp) {
-        int start = shouldRotateUp ? 0 : MAX_LEVEL;
-        int end = shouldRotateUp ? MAX_LEVEL : 0;
-        ObjectAnimator animator = ObjectAnimator.ofInt(arrowDrawable, "level", start, end);
-        animator.setInterpolator(new LinearOutSlowInInterpolator());
-        animator.start();
+        try{
+            int start = shouldRotateUp ? 0 : MAX_LEVEL;
+            int end = shouldRotateUp ? MAX_LEVEL : 0;
+            ObjectAnimator animator = ObjectAnimator.ofInt(arrowDrawable, "level", start, end);
+            animator.setInterpolator(new LinearOutSlowInInterpolator());
+            animator.start();
+
+        }catch (Exception e){
+            //fix when some device not support objAnimation,avoid crash
+            hideArrow();
+        }
+
     }
 
     public void dismissDropDown() {
