@@ -374,6 +374,12 @@ public class NiceSpinner extends AppCompatTextView {
         }
     }
 
+    public void setArrowTintColor(int resolvedColor) {
+        if (arrowDrawable != null && !isArrowHidden) {
+            DrawableCompat.setTint(arrowDrawable, resolvedColor);
+        }
+    }
+
     public void hideArrow() {
         isArrowHidden = true;
         setArrowDrawableOrHide(arrowDrawable);
