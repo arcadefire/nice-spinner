@@ -360,8 +360,9 @@ public class NiceSpinner extends AppCompatTextView {
 
     private void measurePopUpDimension() {
         int widthSpec = MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY);
-        int heightSpec = MeasureSpec.makeMeasureSpec(
-                displayHeight - getParentVerticalOffset() - getMeasuredHeight(),
+        //Max height set to the maximum available size above or below the spinner
+        int maxHeight = Math.max(displayHeight - getParentVerticalOffset() - getMeasuredHeight(), getParentVerticalOffset());
+        int heightSpec = MeasureSpec.makeMeasureSpec(maxHeight,
                 MeasureSpec.AT_MOST);
         listView.measure(widthSpec, heightSpec);
         popupWindow.setWidth(listView.getMeasuredWidth());
