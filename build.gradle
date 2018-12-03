@@ -1,29 +1,21 @@
-apply plugin: 'com.android.library'
-
 buildscript {
     repositories {
-        jcenter()
         google()
-        maven { url 'https://maven.google.com' }
+        jcenter()
+        
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.0-alpha04'
+        classpath 'com.android.tools.build:gradle:3.4.0-alpha06'
     }
 }
 
-android {
-    compileSdkVersion 27
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 27
-    }
-}
-
-dependencies {
+allprojects {
     repositories {
-        jcenter()
         google()
-        maven { url 'https://maven.google.com' }
+        jcenter()
     }
-    implementation 'com.android.support:appcompat-v7:27.0.1'
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
