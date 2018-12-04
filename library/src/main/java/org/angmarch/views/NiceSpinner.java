@@ -70,6 +70,7 @@ public class NiceSpinner extends AppCompatTextView {
     private @DrawableRes int arrowDrawableResId;
     private SpinnerTextFormatter spinnerTextFormatter = new SimpleSpinnerTextFormatter();
     private SpinnerTextFormatter selectedTextFormatter = new SimpleSpinnerTextFormatter();
+    private PopUpTextAlignment horizontalAlignment;
 
     public NiceSpinner(Context context) {
         super(context);
@@ -86,7 +87,8 @@ public class NiceSpinner extends AppCompatTextView {
         init(context, attrs);
     }
 
-    @Override public Parcelable onSaveInstanceState() {
+    @Override
+    public Parcelable onSaveInstanceState() {
         Bundle bundle = new Bundle();
         bundle.putParcelable(INSTANCE_STATE, super.onSaveInstanceState());
         bundle.putInt(SELECTED_INDEX, selectedIndex);
@@ -98,7 +100,8 @@ public class NiceSpinner extends AppCompatTextView {
         return bundle;
     }
 
-    @Override public void onRestoreInstanceState(Parcelable savedState) {
+    @Override
+    public void onRestoreInstanceState(Parcelable savedState) {
         if (savedState instanceof Bundle) {
             Bundle bundle = (Bundle) savedState;
             selectedIndex = bundle.getInt(SELECTED_INDEX);
@@ -148,7 +151,6 @@ public class NiceSpinner extends AppCompatTextView {
         listView.setId(getId());
         listView.setDivider(null);
         listView.setItemsCanFocus(true);
-        //hide vertical and horizontal scrollbars
         listView.setVerticalScrollBarEnabled(false);
         listView.setHorizontalScrollBarEnabled(false);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -203,6 +205,10 @@ public class NiceSpinner extends AppCompatTextView {
         arrowDrawableResId = typedArray.getResourceId(R.styleable.NiceSpinner_arrowDrawable, R.drawable.arrow);
         dropDownListPaddingBottom =
                 typedArray.getDimensionPixelSize(R.styleable.NiceSpinner_dropDownListPaddingBottom, 0);
+        horizontalAlignment = PopUpTextAlignment.fromId(
+                typedArray.getInt(R.styleable.NiceSpinner_popupTextAlignment, PopUpTextAlignment.CENTER.ordinal())
+        );
+
         typedArray.recycle();
 
         measureDisplayHeight();
@@ -221,7 +227,8 @@ public class NiceSpinner extends AppCompatTextView {
         return parentVerticalOffset = locationOnScreen[VERTICAL_OFFSET];
     }
 
-    @Override protected void onVisibilityChanged(View changedView, int visibility) {
+    @Override
+    protected void onVisibilityChanged(View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
         arrowDrawable = initArrowDrawable(arrowDrawableTint);
         setArrowDrawableOrHide(arrowDrawable);
@@ -306,15 +313,18 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     public <T> void attachDataSource(List<T> list) {
-        adapter = new NiceSpinnerAdapter<>(getContext(), list, textColor, backgroundSelector,
-                spinnerTextFormatter);
+        adapter = new NiceSpinnerAdapter<>(getContext(), list, textColor, backgroundSelector, spinnerTextFormatter, horizontalAlignment);
         setAdapterInternal(adapter);
     }
 
     public void setAdapter(ListAdapter adapter) {
         this.adapter = new NiceSpinnerAdapterWrapper(getContext(), adapter, textColor, backgroundSelector,
-                spinnerTextFormatter);
+                spinnerTextFormatter, horizontalAlignment);
         setAdapterInternal(this.adapter);
+    }
+
+    public PopUpTextAlignment getPopUpTextAlignment() {
+        return horizontalAlignment;
     }
 
     private void setAdapterInternal(NiceSpinnerBaseAdapter adapter) {
@@ -324,7 +334,8 @@ public class NiceSpinner extends AppCompatTextView {
         setTextInternal(adapter.getItemInDataset(selectedIndex).toString());
     }
 
-    @Override public boolean onTouchEvent(MotionEvent event) {
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
         if (isEnabled() && event.getAction() == MotionEvent.ACTION_UP) {
             if (!popupWindow.isShowing()) {
                 showDropDown();

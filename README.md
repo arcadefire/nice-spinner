@@ -35,7 +35,8 @@ You can add attributes to customize the view. Available attributes:
 | arrowDrawable             | reference | set the drawable of the drop-down arrow                |
 | textTint                  | color     | set the text color                                     |
 | dropDownListPaddingBottom | dimension | set the bottom padding of the drop-down list           |
-| backgroundSelector        | integer   | set the background selector for the drop-down list rows  |
+| backgroundSelector        | integer   | set the background selector for the drop-down list rows |
+| popupTextAlignment        | enum      | set the horizontal alignment of the default popup text |
 
 How to include
 ---
@@ -50,7 +51,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.github.arcadefire:nice-spinner:1.3.4'
+    implementation 'com.github.arcadefire:nice-spinner:1.3.6'
 }
 ```
 
@@ -67,7 +68,7 @@ Or declare it into your `pom.xml`:
 <dependency>
     <groupId>com.github.arcadefire</groupId>
     <artifactId>nice-spinner</artifactId>
-    <version>1.3.4</version>
+    <version>1.3.6</version>
 </dependency>
 ```
 

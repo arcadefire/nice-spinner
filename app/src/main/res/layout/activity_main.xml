@@ -46,6 +46,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="8dp"
+        app:popupTextAlignment="end"
         app:arrowTint="@color/colorPrimary"
         app:backgroundSelector="@drawable/background_selector"
         app:layout_constraintBottom_toBottomOf="parent"

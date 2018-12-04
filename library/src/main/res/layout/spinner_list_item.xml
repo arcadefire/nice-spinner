@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
-
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/text_view_spinner"
@@ -8,8 +6,7 @@
     android:layout_gravity="center"
     android:ellipsize="marquee"
     android:gravity="center"
-    android:paddingBottom="@dimen/one_and_a_half_grid_unit"
-    android:paddingTop="@dimen/one_and_a_half_grid_unit"
+    android:padding="@dimen/one_and_a_half_grid_unit"
     android:singleLine="true"
     android:textSize="15sp"
     tools:textColor="@android:color/black"

@@ -23,17 +23,25 @@ public class NiceSpinnerAdapter<T> extends NiceSpinnerBaseAdapter {
 
     private final List<T> items;
 
-    NiceSpinnerAdapter(Context context, List<T> items, int textColor, int backgroundSelector,
-                       SpinnerTextFormatter spinnerTextFormatter) {
-        super(context, textColor, backgroundSelector, spinnerTextFormatter);
+    NiceSpinnerAdapter(
+            Context context,
+            List<T> items,
+            int textColor,
+            int backgroundSelector,
+            SpinnerTextFormatter spinnerTextFormatter,
+            PopUpTextAlignment horizontalAlignment
+    ) {
+        super(context, textColor, backgroundSelector, spinnerTextFormatter, horizontalAlignment);
         this.items = items;
     }
 
-    @Override public int getCount() {
+    @Override
+    public int getCount() {
         return items.size() - 1;
     }
 
-    @Override public T getItem(int position) {
+    @Override
+    public T getItem(int position) {
         if (position >= selectedIndex) {
             return items.get(position + 1);
         } else {
@@ -41,7 +49,8 @@ public class NiceSpinnerAdapter<T> extends NiceSpinnerBaseAdapter {
         }
     }
 
-    @Override public T getItemInDataset(int position) {
+    @Override
+    public T getItemInDataset(int position) {
         return items.get(position);
     }
 }
