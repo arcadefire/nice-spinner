@@ -360,12 +360,22 @@ public class NiceSpinner extends AppCompatTextView {
 
     private void measurePopUpDimension() {
         int widthSpec = MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY);
-        int heightSpec = MeasureSpec.makeMeasureSpec(
-                displayHeight - getParentVerticalOffset() - getMeasuredHeight(),
-                MeasureSpec.AT_MOST);
+        int heightSpec = MeasureSpec.makeMeasureSpec(getPopUpHeight(), MeasureSpec.AT_MOST);
         listView.measure(widthSpec, heightSpec);
         popupWindow.setWidth(listView.getMeasuredWidth());
         popupWindow.setHeight(listView.getMeasuredHeight() - dropDownListPaddingBottom);
+    }
+
+    private int getPopUpHeight() {
+        return Math.max(verticalSpaceBelow(), verticalSpaceAbove());
+    }
+
+    private int verticalSpaceAbove() {
+        return getParentVerticalOffset();
+    }
+
+    private int verticalSpaceBelow() {
+        return displayHeight - getParentVerticalOffset() - getMeasuredHeight();
     }
 
     public void setTintColor(@ColorRes int resId) {
