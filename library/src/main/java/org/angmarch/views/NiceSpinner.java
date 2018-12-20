@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
@@ -71,6 +72,8 @@ public class NiceSpinner extends AppCompatTextView {
     private SpinnerTextFormatter spinnerTextFormatter = new SimpleSpinnerTextFormatter();
     private SpinnerTextFormatter selectedTextFormatter = new SimpleSpinnerTextFormatter();
     private PopUpTextAlignment horizontalAlignment;
+
+    @Nullable private ObjectAnimator arrowAnimator = null;
 
     public NiceSpinner(Context context) {
         super(context);
@@ -228,6 +231,14 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     @Override
+    protected void onDetachedFromWindow() {
+        if (arrowAnimator != null) {
+            arrowAnimator.cancel();
+        }
+        super.onDetachedFromWindow();
+    }
+
+    @Override
     protected void onVisibilityChanged(View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
         arrowDrawable = initArrowDrawable(arrowDrawableTint);
@@ -349,9 +360,9 @@ public class NiceSpinner extends AppCompatTextView {
     private void animateArrow(boolean shouldRotateUp) {
         int start = shouldRotateUp ? 0 : MAX_LEVEL;
         int end = shouldRotateUp ? MAX_LEVEL : 0;
-        ObjectAnimator animator = ObjectAnimator.ofInt(arrowDrawable, "level", start, end);
-        animator.setInterpolator(new LinearOutSlowInInterpolator());
-        animator.start();
+        arrowAnimator = ObjectAnimator.ofInt(arrowDrawable, "level", start, end);
+        arrowAnimator.setInterpolator(new LinearOutSlowInInterpolator());
+        arrowAnimator.start();
     }
 
     public void dismissDropDown() {

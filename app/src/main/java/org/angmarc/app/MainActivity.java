@@ -24,6 +24,6 @@ public class MainActivity extends AppCompatActivity {
         tintedSpinner.attachDataSource(dataset);
 
         NiceSpinner bottomSpinner = findViewById(R.id.bottom_nice_spinner);
-        bottomSpinner .attachDataSource(dataset);
+        bottomSpinner.attachDataSource(dataset);
     }
 }
