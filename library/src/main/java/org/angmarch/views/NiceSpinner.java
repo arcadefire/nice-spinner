@@ -237,6 +237,14 @@ public class NiceSpinner extends AppCompatTextView {
         }
         super.onDetachedFromWindow();
     }
+    
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            onVisibilityChanged(this, getVisibility());
+        }
+    }
 
     @Override
     protected void onVisibilityChanged(View changedView, int visibility) {
