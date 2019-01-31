@@ -2,9 +2,13 @@ package org.angmarc.app;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
 
 import org.angmarch.views.NiceSpinner;
+import org.angmarch.views.SimpleSpinnerTextFormatter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,6 +28,50 @@ public class MainActivity extends AppCompatActivity {
         tintedSpinner.attachDataSource(dataset);
 
         NiceSpinner bottomSpinner = findViewById(R.id.bottom_nice_spinner);
-        bottomSpinner.attachDataSource(dataset);
+
+        List<Person> persons = new ArrayList<>();
+
+        persons.add(new Person("John", "Smith"));
+        persons.add(new Person("Adam", "Sandler"));
+        persons.add(new Person("One", "Two"));
+
+        SimpleSpinnerTextFormatter textFormatter = new SimpleSpinnerTextFormatter() {
+            @Override
+            public Spannable format(Object input) {
+                Person person = (Person) input;
+                return new SpannableString(person.getName() + " " + person.getSurname());
+            }
+        };
+
+        bottomSpinner.setSpinnerTextFormatter(textFormatter);
+        bottomSpinner.setSelectedTextFormatter(textFormatter);
+
+        bottomSpinner.attachDataSource(persons);
+    }
+}
+
+class Person {
+    String name;
+    String surname;
+
+    Person(String name, String surname) {
+        this.name = name;
+        this.surname = surname;
+    }
+
+    String getName() {
+        return name;
+    }
+
+    void setName(String name) {
+        this.name = name;
+    }
+
+    String getSurname() {
+        return surname;
+    }
+
+    void setSurname(String surname) {
+        this.surname = surname;
     }
 }
