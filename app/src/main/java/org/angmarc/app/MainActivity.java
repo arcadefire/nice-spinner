@@ -37,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
 
         SimpleSpinnerTextFormatter textFormatter = new SimpleSpinnerTextFormatter() {
             @Override
-            public Spannable format(Object input) {
-                Person person = (Person) input;
+            public Spannable format(Object item) {
+                Person person = (Person) item;
                 return new SpannableString(person.getName() + " " + person.getSurname());
             }
         };
