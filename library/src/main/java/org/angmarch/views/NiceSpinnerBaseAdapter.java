@@ -66,7 +66,7 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
             textView = ((ViewHolder) convertView.getTag()).textView;
         }
 
-        textView.setText(spinnerTextFormatter.format(getItem(position).toString()));
+        textView.setText(spinnerTextFormatter.format(getItem(position)));
         textView.setTextColor(textColor);
 
         setTextHorizontalAlignment(textView);
