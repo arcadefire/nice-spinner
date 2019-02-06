@@ -2,6 +2,9 @@
 <resources>
     <declare-styleable name="NiceSpinner">
         <attr name="arrowTint" format="color" />
+        <attr name="underlineTint" format="color" />
+        <attr name="underlinePaddingRight" format="dimension" />
+        <attr name="underlinePaddingLeft" format="dimension" />
         <attr name="hideArrow" format="boolean" />
         <attr name="arrowDrawable" format="reference|color"/>
         <attr name="dropDownListPaddingBottom" format="dimension"/>

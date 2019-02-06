@@ -1,7 +1,6 @@
 package org.angmarch.views;
 
 import android.content.Context;
-import android.widget.ListAdapter;
 
 /*
  * Copyright (C) 2015 Angelo Marchesin.
@@ -18,39 +17,38 @@ import android.widget.ListAdapter;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class NiceSpinnerAdapterWrapper extends NiceSpinnerBaseAdapter {
+public class NiceSpinnerAdapterExperimental<T> extends NiceSpinnerBaseAdapter {
 
-    private final ListAdapter baseAdapter;
+    private final DataProvider<T> provider;
 
-    NiceSpinnerAdapterWrapper(
+    NiceSpinnerAdapterExperimental(
             Context context,
-            ListAdapter toWrap,
             int textColor,
             int backgroundSelector,
-            SpinnerTextFormatter spinnerTextFormatter
+            SpinnerTextFormatter spinnerTextFormatter,
+            DataProvider<T> provider
     ) {
         super(context, textColor, backgroundSelector, spinnerTextFormatter);
-        this.baseAdapter = toWrap;
+        this.provider = provider;
     }
 
-    @Override public int getCount() {
-        return baseAdapter.getCount() - 1;
+    @Override
+    public int getCount() {
+        return provider.getCount();
     }
 
-    @Override public Object getItem(int position) {
-        return baseAdapter.getItem(getAdjustedPosition(position));
+    @Override
+    public T getItem(int position) {
+        return provider.getItem(position);
     }
 
-    @Override public Object getItemInDataset(int position) {
-        return baseAdapter.getItem(position);
+    @Override
+    public T getItemInDataset(int position) {
+        return provider.getItemInDataset(position);
     }
 
     @Override
     public int getAdjustedPosition(int position) {
-        if (position >= selectedIndex) {
-            return position + 1;
-        } else {
-            return position;
-        }
+        return provider.getAdjustedPosition(position);
     }
 }

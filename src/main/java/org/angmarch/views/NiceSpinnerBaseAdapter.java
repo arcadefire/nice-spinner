@@ -2,12 +2,13 @@ package org.angmarch.views;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 /*
  * Copyright (C) 2015 Angelo Marchesin.
@@ -47,7 +48,7 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
 
         if (convertView == null) {
             convertView = View.inflate(context, R.layout.spinner_list_item, null);
-            textView = (TextView) convertView.findViewById(R.id.text_view_spinner);
+            textView = convertView.findViewById(R.id.text_view_spinner);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 textView.setBackground(ContextCompat.getDrawable(context, backgroundSelector));
@@ -57,12 +58,13 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
             textView = ((ViewHolder) convertView.getTag()).textView;
         }
 
-        textView.setText(spinnerTextFormatter.format(getItem(position).toString()));
+        textView.setText(spinnerTextFormatter.format(getItem(position).toString()) + " " + position);
         textView.setTextColor(textColor);
+
         return convertView;
     }
 
-    public int getSelectedIndex() {
+    int getSelectedIndex() {
         return selectedIndex;
     }
 
@@ -71,6 +73,8 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
     }
 
     public abstract T getItemInDataset(int position);
+
+    public abstract int getAdjustedPosition(int position);
 
     @Override public long getItemId(int position) {
         return position;

@@ -21,27 +21,40 @@ import java.util.List;
  */
 public class NiceSpinnerAdapter<T> extends NiceSpinnerBaseAdapter {
 
-    private final List<T> items;
+    private final List<T> list;
 
-    NiceSpinnerAdapter(Context context, List<T> items, int textColor, int backgroundSelector,
-                       SpinnerTextFormatter spinnerTextFormatter) {
+    NiceSpinnerAdapter(
+            Context context,
+            List<T> list,
+            int textColor,
+            int backgroundSelector,
+            SpinnerTextFormatter spinnerTextFormatter
+    ) {
         super(context, textColor, backgroundSelector, spinnerTextFormatter);
-        this.items = items;
+        this.list = list;
     }
 
-    @Override public int getCount() {
-        return items.size() - 1;
+    @Override
+    public int getCount() {
+        return list.size() - 1;
     }
 
-    @Override public T getItem(int position) {
+    @Override
+    public T getItem(int position) {
+        return list.get(getAdjustedPosition(position));
+    }
+
+    @Override
+    public T getItemInDataset(int position) {
+        return list.get(position);
+    }
+
+    @Override
+    public int getAdjustedPosition(int position) {
         if (position >= selectedIndex) {
-            return items.get(position + 1);
+            return position + 1;
         } else {
-            return items.get(position);
+            return position;
         }
-    }
-
-    @Override public T getItemInDataset(int position) {
-        return items.get(position);
     }
 }
