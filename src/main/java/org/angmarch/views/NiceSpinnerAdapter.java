@@ -45,7 +45,7 @@ public class NiceSpinnerAdapter<T> extends NiceSpinnerBaseAdapter {
     }
 
     @Override
-    public T getItemInDataset(int position) {
+    public T getItemFromList(int position) {
         return list.get(position);
     }
 

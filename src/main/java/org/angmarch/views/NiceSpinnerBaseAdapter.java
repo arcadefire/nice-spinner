@@ -35,14 +35,19 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
 
     int selectedIndex;
 
-    NiceSpinnerBaseAdapter(Context context, int textColor, int backgroundSelector,
-                           SpinnerTextFormatter spinnerTextFormatter) {
+    NiceSpinnerBaseAdapter(
+            Context context,
+            int textColor,
+            int backgroundSelector,
+            SpinnerTextFormatter spinnerTextFormatter
+    ) {
         this.spinnerTextFormatter = spinnerTextFormatter;
         this.backgroundSelector = backgroundSelector;
         this.textColor = textColor;
     }
 
-    @Override public View getView(int position, @Nullable View convertView, ViewGroup parent) {
+    @Override
+    public View getView(int position, @Nullable View convertView, ViewGroup parent) {
         Context context = parent.getContext();
         TextView textView;
 
@@ -58,7 +63,7 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
             textView = ((ViewHolder) convertView.getTag()).textView;
         }
 
-        textView.setText(spinnerTextFormatter.format(getItem(position).toString()) + " " + position);
+        textView.setText(spinnerTextFormatter.format(getItem(position).toString()));
         textView.setTextColor(textColor);
 
         return convertView;
@@ -72,17 +77,22 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
         selectedIndex = index;
     }
 
-    public abstract T getItemInDataset(int position);
-
-    public abstract int getAdjustedPosition(int position);
-
-    @Override public long getItemId(int position) {
+    public int getAdjustedPosition(int position) {
         return position;
     }
 
-    @Override public abstract T getItem(int position);
+    public abstract T getItemFromList(int position);
 
-    @Override public abstract int getCount();
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public abstract T getItem(int position);
+
+    @Override
+    public abstract int getCount();
 
     static class ViewHolder {
         TextView textView;

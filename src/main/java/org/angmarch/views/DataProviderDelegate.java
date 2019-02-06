@@ -1,6 +1,6 @@
 package org.angmarch.views;
 
-public interface DataProvider<T> {
+public interface DataProviderDelegate<T> {
 
     int getCount();
 

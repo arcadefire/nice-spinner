@@ -17,38 +17,38 @@ import android.content.Context;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class NiceSpinnerAdapterExperimental<T> extends NiceSpinnerBaseAdapter {
+public class NiceSpinnerDelegateAdapter<T> extends NiceSpinnerBaseAdapter {
 
-    private final DataProvider<T> provider;
+    private final DataProviderDelegate<T> delegate;
 
-    NiceSpinnerAdapterExperimental(
+    NiceSpinnerDelegateAdapter(
             Context context,
             int textColor,
             int backgroundSelector,
             SpinnerTextFormatter spinnerTextFormatter,
-            DataProvider<T> provider
+            DataProviderDelegate<T> delegate
     ) {
         super(context, textColor, backgroundSelector, spinnerTextFormatter);
-        this.provider = provider;
+        this.delegate = delegate;
     }
 
     @Override
     public int getCount() {
-        return provider.getCount();
+        return delegate.getCount();
     }
 
     @Override
     public T getItem(int position) {
-        return provider.getItem(position);
+        return delegate.getItem(position);
     }
 
     @Override
-    public T getItemInDataset(int position) {
-        return provider.getItemInDataset(position);
+    public T getItemFromList(int position) {
+        return delegate.getItemInDataset(position);
     }
 
     @Override
     public int getAdjustedPosition(int position) {
-        return provider.getAdjustedPosition(position);
+        return delegate.getAdjustedPosition(position);
     }
 }

@@ -115,7 +115,7 @@ public class NiceSpinner extends TextView {
             selectedIndex = bundle.getInt(SELECTED_INDEX);
 
             if (adapter != null) {
-                setTextInternal(adapter.getItemInDataset(selectedIndex).toString());
+                setTextInternal(adapter.getItemFromList(selectedIndex).toString());
                 adapter.setSelectedIndex(selectedIndex);
             }
 
@@ -169,12 +169,9 @@ public class NiceSpinner extends TextView {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                /*if (position >= selectedIndex && position < adapter.getCount()) {
-                    position++;
-                }*/
                 int adjustedPosition = adapter.getAdjustedPosition(position);
 
-                setTextInternal(adapter.getItemInDataset(adjustedPosition).toString() + " " + adjustedPosition);
+                setTextInternal(adapter.getItem(position).toString());
 
                 // Need to set selected index before calling listeners or getSelectedIndex() value can be
                 // reported incorrectly.
@@ -315,7 +312,7 @@ public class NiceSpinner extends TextView {
             if (position >= 0 && position <= adapter.getCount()) {
                 adapter.setSelectedIndex(position);
                 selectedIndex = position;
-                setTextInternal(adapter.getItemInDataset(position).toString());
+                setTextInternal(adapter.getItemFromList(position).toString());
             } else {
                 throw new IllegalArgumentException("Position must be lower than adapter count!");
             }
@@ -347,12 +344,13 @@ public class NiceSpinner extends TextView {
         setAdapterInternal(this.adapter);
     }
 
-    public <T> void setAdapter(DataProvider<T> provider) {
-        this.adapter = new NiceSpinnerAdapterExperimental(
+    public <T> void setAdapter(DataProviderDelegate<T> delegate) {
+        this.adapter = new NiceSpinnerDelegateAdapter(
                 getContext(),
                 textColor,
                 backgroundSelector,
-                spinnerTextFormatter, provider
+                spinnerTextFormatter,
+                delegate
         );
         setAdapterInternal(this.adapter);
     }
@@ -361,7 +359,7 @@ public class NiceSpinner extends TextView {
         // If the adapter needs to be settled again, ensure to reset the selected index as well
         selectedIndex = 0;
         listView.setAdapter(adapter);
-        setTextInternal(adapter.getItemInDataset(selectedIndex).toString());
+        setTextInternal(adapter.getItemFromList(selectedIndex).toString());
     }
 
     @Override
