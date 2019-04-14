@@ -26,6 +26,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 
+import java.util.Arrays;
 import java.util.List;
 
 /*
@@ -68,12 +69,14 @@ public class NiceSpinner extends AppCompatTextView {
     private int displayHeight;
     private int parentVerticalOffset;
     private int dropDownListPaddingBottom;
-    private @DrawableRes int arrowDrawableResId;
+    private @DrawableRes
+    int arrowDrawableResId;
     private SpinnerTextFormatter spinnerTextFormatter = new SimpleSpinnerTextFormatter();
     private SpinnerTextFormatter selectedTextFormatter = new SimpleSpinnerTextFormatter();
     private PopUpTextAlignment horizontalAlignment;
 
-    @Nullable private ObjectAnimator arrowAnimator = null;
+    @Nullable
+    private ObjectAnimator arrowAnimator = null;
 
     public NiceSpinner(Context context) {
         super(context);
@@ -211,10 +214,15 @@ public class NiceSpinner extends AppCompatTextView {
         horizontalAlignment = PopUpTextAlignment.fromId(
                 typedArray.getInt(R.styleable.NiceSpinner_popupTextAlignment, PopUpTextAlignment.CENTER.ordinal())
         );
+        CharSequence[] entries = typedArray.getTextArray(R.styleable.NiceSpinner_entries);
+        if (entries != null) {
+            attachDataSource(Arrays.asList(entries));
+        }
 
         typedArray.recycle();
 
         measureDisplayHeight();
+
     }
 
     private void measureDisplayHeight() {
@@ -237,7 +245,7 @@ public class NiceSpinner extends AppCompatTextView {
         }
         super.onDetachedFromWindow();
     }
-    
+
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -332,6 +340,9 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     public <T> void attachDataSource(List<T> list) {
+        if (list == null) {
+            return;
+        }
         adapter = new NiceSpinnerAdapter<>(getContext(), list, textColor, backgroundSelector, spinnerTextFormatter, horizontalAlignment);
         setAdapterInternal(adapter);
     }

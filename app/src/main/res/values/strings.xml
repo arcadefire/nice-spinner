@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Nice Spinner App</string>
+    <string-array name="courses">
+        <item>English</item>
+        <item>Chinese</item>
+        <item>Math</item>
+    </string-array>
 </resources>
