@@ -37,6 +37,7 @@ You can add attributes to customize the view. Available attributes:
 | dropDownListPaddingBottom | dimension | set the bottom padding of the drop-down list           |
 | backgroundSelector        | integer   | set the background selector for the drop-down list rows |
 | popupTextAlignment        | enum      | set the horizontal alignment of the default popup text |
+| entries                   | reference | set the defalut data                                   |
 
 How to include
 ---
