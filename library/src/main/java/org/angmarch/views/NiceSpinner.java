@@ -75,6 +75,7 @@ public class NiceSpinner extends AppCompatTextView {
     private SpinnerTextFormatter selectedTextFormatter = new SimpleSpinnerTextFormatter();
     private PopUpTextAlignment horizontalAlignment;
     private AdapterView.OnItemClickListener mOnItemClickListener;
+    private Object currentItem;
 
     @Nullable
     private ObjectAnimator arrowAnimator = null;
@@ -161,16 +162,15 @@ public class NiceSpinner extends AppCompatTextView {
         listView.setVerticalScrollBarEnabled(false);
         listView.setHorizontalScrollBarEnabled(false);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                currentItem = parent.getItemAtPosition(position);
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(parent, view, position, id);
+                }
 
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                            if (mOnItemClickListener != null) {
-                                mOnItemClickListener.onItemClick(parent, view, position, id);
-                            }
-
-                            if (position >= selectedIndex && position < adapter.getCount()) {
-                                position++;
+                if (position >= selectedIndex && position < adapter.getCount()) {
+                    position++;
                 }
 
                 // Need to set selected index before calling listeners or getSelectedIndex() can be
@@ -190,6 +190,7 @@ public class NiceSpinner extends AppCompatTextView {
                 dismissDropDown();
             }
         });
+
 
         popupWindow = new PopupWindow(context);
         popupWindow.setContentView(listView);
@@ -346,9 +347,10 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     public <T> void attachDataSource(List<T> list) {
-        if (list == null) {
+        if (list == null || list.size() == 0) {
             return;
         }
+        currentItem = list.get(0);
         adapter = new NiceSpinnerAdapter<>(getContext(), list, textColor, backgroundSelector, spinnerTextFormatter, horizontalAlignment);
         setAdapterInternal(adapter);
     }
@@ -471,4 +473,7 @@ public class NiceSpinner extends AppCompatTextView {
         this.selectedTextFormatter = textFormatter;
     }
 
+    public <T> T getCurrentItem() {
+        return (T) currentItem;
+    }
 }

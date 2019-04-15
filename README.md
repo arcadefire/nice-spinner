@@ -40,6 +40,10 @@ Now you can add the item click listener in the code:
         }
     });
 ```
+And you also can use the getCurrentItem() to get the showing item.
+```java
+    String str = spinner.getCurrentItem();
+```
 #### Attributes
 You can add attributes to customize the view. Available attributes:
 

@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
         NiceSpinner niceSpinner = findViewById(R.id.nice_spinner);
         List<String> dataset = new LinkedList<>(Arrays.asList("One", "Two", "Three", "Four", "Five"));
         niceSpinner.attachDataSource(dataset);
+        String str = niceSpinner.getCurrentItem();
+        Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
 
         List<String> data = new ArrayList<>();
         data.add("it's clickable");
@@ -69,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }
 
 class Person {
