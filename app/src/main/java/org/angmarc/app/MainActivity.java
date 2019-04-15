@@ -23,6 +23,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        final NiceSpinner entriesSpinner = findViewById(R.id.entries_spinner);
+        findViewById(R.id.show_spinner_item_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, entriesSpinner.getCurrentItem().toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
         NiceSpinner niceSpinner = findViewById(R.id.nice_spinner);
         List<String> dataset = new LinkedList<>(Arrays.asList("One", "Two", "Three", "Four", "Five"));
         niceSpinner.attachDataSource(dataset);
