@@ -74,6 +74,8 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
         return convertView;
     }
 
+
+
     private void setTextHorizontalAlignment(TextView textView) {
         switch (horizontalAlignment) {
             case START:

@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Toast;
 
 import org.angmarch.views.NiceSpinner;
 import org.angmarch.views.SimpleSpinnerTextFormatter;
@@ -24,8 +27,19 @@ public class MainActivity extends AppCompatActivity {
         List<String> dataset = new LinkedList<>(Arrays.asList("One", "Two", "Three", "Four", "Five"));
         niceSpinner.attachDataSource(dataset);
 
+        List<String> data = new ArrayList<>();
+        data.add("it's clickable");
+        data.add("setOnItemClickListener");
+        data.add("Hello World!");
         NiceSpinner tintedSpinner = findViewById(R.id.tinted_nice_spinner);
-        tintedSpinner.attachDataSource(dataset);
+        tintedSpinner.attachDataSource(data);
+        tintedSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String str = parent.getItemAtPosition(position).toString();
+                Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         NiceSpinner bottomSpinner = findViewById(R.id.bottom_nice_spinner);
 
@@ -43,10 +57,17 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+
         bottomSpinner.setSpinnerTextFormatter(textFormatter);
         bottomSpinner.setSelectedTextFormatter(textFormatter);
 
         bottomSpinner.attachDataSource(persons);
+        bottomSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(MainActivity.this, "You are select the " + position + " item: " + parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
 
@@ -73,5 +94,13 @@ class Person {
 
     void setSurname(String surname) {
         this.surname = surname;
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                '}';
     }
 }

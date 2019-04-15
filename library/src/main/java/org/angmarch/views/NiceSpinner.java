@@ -74,6 +74,7 @@ public class NiceSpinner extends AppCompatTextView {
     private SpinnerTextFormatter spinnerTextFormatter = new SimpleSpinnerTextFormatter();
     private SpinnerTextFormatter selectedTextFormatter = new SimpleSpinnerTextFormatter();
     private PopUpTextAlignment horizontalAlignment;
+    private AdapterView.OnItemClickListener mOnItemClickListener;
 
     @Nullable
     private ObjectAnimator arrowAnimator = null;
@@ -161,10 +162,15 @@ public class NiceSpinner extends AppCompatTextView {
         listView.setHorizontalScrollBarEnabled(false);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position >= selectedIndex && position < adapter.getCount()) {
-                    position++;
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                            if (mOnItemClickListener != null) {
+                                mOnItemClickListener.onItemClick(parent, view, position, id);
+                            }
+
+                            if (position >= selectedIndex && position < adapter.getCount()) {
+                                position++;
                 }
 
                 // Need to set selected index before calling listeners or getSelectedIndex() can be
@@ -347,6 +353,10 @@ public class NiceSpinner extends AppCompatTextView {
         setAdapterInternal(adapter);
     }
 
+    public void setOnItemClickListener(AdapterView.OnItemClickListener listener) {
+        mOnItemClickListener = listener;
+    }
+
     public void setAdapter(ListAdapter adapter) {
         this.adapter = new NiceSpinnerAdapterWrapper(getContext(), adapter, textColor, backgroundSelector,
                 spinnerTextFormatter, horizontalAlignment);
@@ -460,4 +470,5 @@ public class NiceSpinner extends AppCompatTextView {
     public void setSelectedTextFormatter(SpinnerTextFormatter textFormatter) {
         this.selectedTextFormatter = textFormatter;
     }
+
 }
