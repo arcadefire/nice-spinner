@@ -20,11 +20,26 @@ The usage is pretty straightforward. Add the tag into the XML layout:
 
  Then use this snippet to populate with contents:
 ```java
- NiceSpinner niceSpinner = (NiceSpinner) findViewById(R.id.nice_spinner);
- List<String> dataset = new LinkedList<>(Arrays.asList("One", "Two", "Three", "Four", "Five"));
- niceSpinner.attachDataSource(dataset);
+    NiceSpinner niceSpinner = (NiceSpinner) findViewById(R.id.nice_spinner);
+    List<String> dataset = new LinkedList<>(Arrays.asList("One", "Two", "Three", "Four", "Five"));
+    niceSpinner.attachDataSource(dataset);
 ```
-
+Now you can add the item click listener in the code:
+```java
+    List<String> data = new ArrayList<>();
+    data.add("it's clickable");
+    data.add("setOnItemClickListener");
+    data.add("Hello World!");
+    NiceSpinner tintedSpinner = findViewById(R.id.tinted_nice_spinner);
+    tintedSpinner.attachDataSource(data);
+    tintedSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            String str = parent.getItemAtPosition(position).toString();
+            Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
+        }
+    });
+```
 #### Attributes
 You can add attributes to customize the view. Available attributes:
 
