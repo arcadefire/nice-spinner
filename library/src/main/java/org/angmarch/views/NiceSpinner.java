@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -26,6 +27,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 
+import java.util.Arrays;
 import java.util.List;
 
 /*
@@ -68,12 +70,14 @@ public class NiceSpinner extends AppCompatTextView {
     private int displayHeight;
     private int parentVerticalOffset;
     private int dropDownListPaddingBottom;
-    private @DrawableRes int arrowDrawableResId;
+    private @DrawableRes
+    int arrowDrawableResId;
     private SpinnerTextFormatter spinnerTextFormatter = new SimpleSpinnerTextFormatter();
     private SpinnerTextFormatter selectedTextFormatter = new SimpleSpinnerTextFormatter();
     private PopUpTextAlignment horizontalAlignment;
 
-    @Nullable private ObjectAnimator arrowAnimator = null;
+    @Nullable
+    private ObjectAnimator arrowAnimator = null;
 
     public NiceSpinner(Context context) {
         super(context);
@@ -160,13 +164,14 @@ public class NiceSpinner extends AppCompatTextView {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // The selected item is not displayed within the list, so when the selected position is equal to
+                // the one of the currently selected item it gets shifted to the next item.
+                int offsetPosition = position;
                 if (position >= selectedIndex && position < adapter.getCount()) {
-                    position++;
+                    offsetPosition++;
                 }
 
-                // Need to set selected index before calling listeners or getSelectedIndex() can be
-                // reported incorrectly due to race conditions.
-                selectedIndex = position;
+                selectedIndex = offsetPosition;
 
                 if (onItemClickListener != null) {
                     onItemClickListener.onItemClick(parent, view, position, id);
@@ -176,8 +181,8 @@ public class NiceSpinner extends AppCompatTextView {
                     onItemSelectedListener.onItemSelected(parent, view, position, id);
                 }
 
-                adapter.setSelectedIndex(position);
-                setTextInternal(selectedTextFormatter.format(adapter.getItemInDataset(position)).toString());
+                adapter.setSelectedIndex(offsetPosition);
+                setTextInternal(selectedTextFormatter.format(adapter.getItemInDataset(offsetPosition)).toString());
                 dismissDropDown();
             }
         });
@@ -212,6 +217,11 @@ public class NiceSpinner extends AppCompatTextView {
                 typedArray.getInt(R.styleable.NiceSpinner_popupTextAlignment, PopUpTextAlignment.CENTER.ordinal())
         );
 
+        CharSequence[] entries = typedArray.getTextArray(R.styleable.NiceSpinner_entries);
+        if (entries != null) {
+            attachDataSource(Arrays.asList(entries));
+        }
+
         typedArray.recycle();
 
         measureDisplayHeight();
@@ -237,7 +247,7 @@ public class NiceSpinner extends AppCompatTextView {
         }
         super.onDetachedFromWindow();
     }
-    
+
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -281,6 +291,10 @@ public class NiceSpinner extends AppCompatTextView {
         int defaultTextColor = typedArray.getColor(0, Color.BLACK);
         typedArray.recycle();
         return defaultTextColor;
+    }
+
+    public Object getSelectedItem() {
+        return adapter.getItemInDataset(selectedIndex);
     }
 
     public int getSelectedIndex() {
@@ -331,7 +345,7 @@ public class NiceSpinner extends AppCompatTextView {
         this.onItemSelectedListener = onItemSelectedListener;
     }
 
-    public <T> void attachDataSource(List<T> list) {
+    public <T> void attachDataSource(@NonNull List<T> list) {
         adapter = new NiceSpinnerAdapter<>(getContext(), list, textColor, backgroundSelector, spinnerTextFormatter, horizontalAlignment);
         setAdapterInternal(adapter);
     }

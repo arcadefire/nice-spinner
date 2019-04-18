@@ -4,6 +4,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Toast;
 
 import org.angmarch.views.NiceSpinner;
 import org.angmarch.views.SimpleSpinnerTextFormatter;
@@ -19,21 +22,32 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setupDefault();
+        setupTintedWithCustomClass();
+        setupXml();
+    }
 
-        NiceSpinner niceSpinner = findViewById(R.id.nice_spinner);
-        List<String> dataset = new LinkedList<>(Arrays.asList("One", "Two", "Three", "Four", "Five"));
-        niceSpinner.attachDataSource(dataset);
+    private void setupXml() {
+        NiceSpinner spinner = findViewById(R.id.niceSpinnerXml);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String item = parent.getItemAtPosition(position).toString();
+                Toast.makeText(MainActivity.this, "Selected: " + item, Toast.LENGTH_SHORT).show();
+            }
 
-        NiceSpinner tintedSpinner = findViewById(R.id.tinted_nice_spinner);
-        tintedSpinner.attachDataSource(dataset);
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
+    }
 
-        NiceSpinner bottomSpinner = findViewById(R.id.bottom_nice_spinner);
-
+    private void setupTintedWithCustomClass() {
+        final NiceSpinner spinner = findViewById(R.id.tinted_nice_spinner);
         List<Person> persons = new ArrayList<>();
 
-        persons.add(new Person("John", "Smith"));
-        persons.add(new Person("Adam", "Sandler"));
-        persons.add(new Person("One", "Two"));
+        persons.add(new Person("Tony", "Stark"));
+        persons.add(new Person("Steve", "Rogers"));
+        persons.add(new Person("Bruce", "Banner"));
 
         SimpleSpinnerTextFormatter textFormatter = new SimpleSpinnerTextFormatter() {
             @Override
@@ -43,16 +57,36 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        bottomSpinner.setSpinnerTextFormatter(textFormatter);
-        bottomSpinner.setSelectedTextFormatter(textFormatter);
+        spinner.setSpinnerTextFormatter(textFormatter);
+        spinner.setSelectedTextFormatter(textFormatter);
+        spinner.addOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Person person = (Person) spinner.getSelectedItem(); //parent.getItemAtPosition(position).toString();
+                Toast.makeText(MainActivity.this, "Selected: " + person.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        spinner.attachDataSource(persons);
+    }
 
-        bottomSpinner.attachDataSource(persons);
+    private void setupDefault() {
+        NiceSpinner spinner = findViewById(R.id.nice_spinner);
+        List<String> dataset = new LinkedList<>(Arrays.asList("One", "Two", "Three", "Four", "Five"));
+        spinner.attachDataSource(dataset);
+        spinner.addOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String item = parent.getItemAtPosition(position).toString();
+                Toast.makeText(MainActivity.this, "Selected: " + item, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
 
 class Person {
-    String name;
-    String surname;
+
+    private String name;
+    private String surname;
 
     Person(String name, String surname) {
         this.name = name;
@@ -63,15 +97,12 @@ class Person {
         return name;
     }
 
-    void setName(String name) {
-        this.name = name;
-    }
-
     String getSurname() {
         return surname;
     }
 
-    void setSurname(String surname) {
-        this.surname = surname;
+    @Override
+    public String toString() {
+        return name + " " + surname;
     }
 }
