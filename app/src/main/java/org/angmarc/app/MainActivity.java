@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 
 import org.angmarch.views.NiceSpinner;
+import org.angmarch.views.OnSpinnerItemSelectedListener;
 import org.angmarch.views.SimpleSpinnerTextFormatter;
 
 import java.util.ArrayList;
@@ -29,15 +30,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupXml() {
         NiceSpinner spinner = findViewById(R.id.niceSpinnerXml);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinner.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(NiceSpinner parent, View view, int position, long id) {
                 String item = parent.getItemAtPosition(position).toString();
                 Toast.makeText(MainActivity.this, "Selected: " + item, Toast.LENGTH_SHORT).show();
             }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
         });
     }
 
@@ -59,9 +57,9 @@ public class MainActivity extends AppCompatActivity {
 
         spinner.setSpinnerTextFormatter(textFormatter);
         spinner.setSelectedTextFormatter(textFormatter);
-        spinner.addOnItemClickListener(new AdapterView.OnItemClickListener() {
+        spinner.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(NiceSpinner parent, View view, int position, long id) {
                 Person person = (Person) spinner.getSelectedItem(); //parent.getItemAtPosition(position).toString();
                 Toast.makeText(MainActivity.this, "Selected: " + person.toString(), Toast.LENGTH_SHORT).show();
             }
@@ -73,9 +71,9 @@ public class MainActivity extends AppCompatActivity {
         NiceSpinner spinner = findViewById(R.id.nice_spinner);
         List<String> dataset = new LinkedList<>(Arrays.asList("One", "Two", "Three", "Four", "Five"));
         spinner.attachDataSource(dataset);
-        spinner.addOnItemClickListener(new AdapterView.OnItemClickListener() {
+        spinner.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(NiceSpinner parent, View view, int position, long id) {
                 String item = parent.getItemAtPosition(position).toString();
                 Toast.makeText(MainActivity.this, "Selected: " + item, Toast.LENGTH_SHORT).show();
             }

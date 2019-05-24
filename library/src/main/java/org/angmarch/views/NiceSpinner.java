@@ -48,21 +48,24 @@ import java.util.List;
 public class NiceSpinner extends AppCompatTextView {
 
     private static final int MAX_LEVEL = 10000;
+    private static final int VERTICAL_OFFSET = 1;
     private static final int DEFAULT_ELEVATION = 16;
     private static final String INSTANCE_STATE = "instance_state";
     private static final String SELECTED_INDEX = "selected_index";
     private static final String IS_POPUP_SHOWING = "is_popup_showing";
     private static final String IS_ARROW_HIDDEN = "is_arrow_hidden";
     private static final String ARROW_DRAWABLE_RES_ID = "arrow_drawable_res_id";
-    public static final int VERTICAL_OFFSET = 1;
 
     private int selectedIndex;
     private Drawable arrowDrawable;
     private PopupWindow popupWindow;
     private ListView listView;
     private NiceSpinnerBaseAdapter adapter;
+
     private AdapterView.OnItemClickListener onItemClickListener;
     private AdapterView.OnItemSelectedListener onItemSelectedListener;
+    private OnSpinnerItemSelectedListener onSpinnerItemSelectedListener;
+
     private boolean isArrowHidden;
     private int textColor;
     private int backgroundSelector;
@@ -161,17 +164,19 @@ public class NiceSpinner extends AppCompatTextView {
         listView.setVerticalScrollBarEnabled(false);
         listView.setHorizontalScrollBarEnabled(false);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // The selected item is not displayed within the list, so when the selected position is equal to
                 // the one of the currently selected item it gets shifted to the next item.
-                int offsetPosition = position;
                 if (position >= selectedIndex && position < adapter.getCount()) {
-                    offsetPosition++;
+                    position++;
                 }
 
-                selectedIndex = offsetPosition;
+                selectedIndex = position;
+
+                if (onSpinnerItemSelectedListener != null) {
+                    onSpinnerItemSelectedListener.onItemSelected(NiceSpinner.this, view, position, id);
+                }
 
                 if (onItemClickListener != null) {
                     onItemClickListener.onItemClick(parent, view, position, id);
@@ -181,8 +186,10 @@ public class NiceSpinner extends AppCompatTextView {
                     onItemSelectedListener.onItemSelected(parent, view, position, id);
                 }
 
-                adapter.setSelectedIndex(offsetPosition);
-                setTextInternal(selectedTextFormatter.format(adapter.getItemInDataset(offsetPosition)).toString());
+                adapter.setSelectedIndex(position);
+
+                setTextInternal(selectedTextFormatter.format(adapter.getItemInDataset(position)).toString());
+
                 dismissDropDown();
             }
         });
@@ -293,6 +300,10 @@ public class NiceSpinner extends AppCompatTextView {
         return defaultTextColor;
     }
 
+    public Object getItemAtPosition(int position) {
+        return adapter.getItemInDataset(position);
+    }
+
     public Object getSelectedItem() {
         return adapter.getItemInDataset(selectedIndex);
     }
@@ -341,10 +352,14 @@ public class NiceSpinner extends AppCompatTextView {
         this.listView.setFastScrollEnabled(isEnabled);
     }
 
+    /** @deprecated use setOnSpinnerItemSelectedListener instead. */
+    @Deprecated
     public void addOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 
+    /** @deprecated use setOnSpinnerItemSelectedListener instead. */
+    @Deprecated
     public void setOnItemSelectedListener(AdapterView.OnItemSelectedListener onItemSelectedListener) {
         this.onItemSelectedListener = onItemSelectedListener;
     }
@@ -468,5 +483,17 @@ public class NiceSpinner extends AppCompatTextView {
 
     public void setSelectedTextFormatter(SpinnerTextFormatter textFormatter) {
         this.selectedTextFormatter = textFormatter;
+    }
+
+    public void performItemClick(View view, int position, int id) {
+        listView.performItemClick(view, position, id);
+    }
+
+    public OnSpinnerItemSelectedListener getOnSpinnerItemSelectedListener() {
+        return onSpinnerItemSelectedListener;
+    }
+
+    public void setOnSpinnerItemSelectedListener(OnSpinnerItemSelectedListener onSpinnerItemSelectedListener) {
+        this.onSpinnerItemSelectedListener = onSpinnerItemSelectedListener;
     }
 }
