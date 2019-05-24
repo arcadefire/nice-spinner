@@ -187,7 +187,7 @@ public class NiceSpinner extends AppCompatTextView {
 
                 adapter.setSelectedIndex(position);
 
-                setTextInternal(selectedTextFormatter.format(adapter.getItemInDataset(position)).toString());
+                setTextInternal(adapter.getItemInDataset(position));
 
                 dismissDropDown();
             }
@@ -323,11 +323,11 @@ public class NiceSpinner extends AppCompatTextView {
         setArrowDrawableOrHide(arrowDrawable);
     }
 
-    public void setTextInternal(String text) {
+    private void setTextInternal(Object item) {
         if (selectedTextFormatter != null) {
-            setText(selectedTextFormatter.format(text));
+            setText(selectedTextFormatter.format(item));
         } else {
-            setText(text);
+            setText(item.toString());
         }
     }
 
@@ -383,12 +383,12 @@ public class NiceSpinner extends AppCompatTextView {
         return horizontalAlignment;
     }
 
-    private void setAdapterInternal(NiceSpinnerBaseAdapter adapter) {
+    private <T> void setAdapterInternal(NiceSpinnerBaseAdapter<T> adapter) {
         if (adapter.getCount() > 0) {
             // If the adapter needs to be set again, ensure to reset the selected index as well
             selectedIndex = 0;
             listView.setAdapter(adapter);
-            setTextInternal(selectedTextFormatter.format(adapter.getItemInDataset(selectedIndex)).toString());
+            setTextInternal(adapter.getItemInDataset(selectedIndex));
         }
     }
 

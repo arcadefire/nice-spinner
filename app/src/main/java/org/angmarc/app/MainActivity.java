@@ -11,6 +11,7 @@ import android.widget.Toast;
 import org.angmarch.views.NiceSpinner;
 import org.angmarch.views.OnSpinnerItemSelectedListener;
 import org.angmarch.views.SimpleSpinnerTextFormatter;
+import org.angmarch.views.SpinnerTextFormatter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,16 +42,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupTintedWithCustomClass() {
         final NiceSpinner spinner = findViewById(R.id.tinted_nice_spinner);
-        List<Person> persons = new ArrayList<>();
+        List<Person> people = new ArrayList<>();
 
-        persons.add(new Person("Tony", "Stark"));
-        persons.add(new Person("Steve", "Rogers"));
-        persons.add(new Person("Bruce", "Banner"));
+        people.add(new Person("Tony", "Stark"));
+        people.add(new Person("Steve", "Rogers"));
+        people.add(new Person("Bruce", "Banner"));
 
-        SimpleSpinnerTextFormatter textFormatter = new SimpleSpinnerTextFormatter() {
+        SpinnerTextFormatter textFormatter = new SpinnerTextFormatter<Person>() {
             @Override
-            public Spannable format(Object item) {
-                Person person = (Person) item;
+            public Spannable format(Person person) {
                 return new SpannableString(person.getName() + " " + person.getSurname());
             }
         };
@@ -60,11 +60,11 @@ public class MainActivity extends AppCompatActivity {
         spinner.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener() {
             @Override
             public void onItemSelected(NiceSpinner parent, View view, int position, long id) {
-                Person person = (Person) spinner.getSelectedItem(); //parent.getItemAtPosition(position).toString();
+                Person person = (Person) spinner.getSelectedItem();
                 Toast.makeText(MainActivity.this, "Selected: " + person.toString(), Toast.LENGTH_SHORT).show();
             }
         });
-        spinner.attachDataSource(persons);
+        spinner.attachDataSource(people);
     }
 
     private void setupDefault() {
