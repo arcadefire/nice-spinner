@@ -2,7 +2,7 @@
 
 NiceSpinner is a re-implementation of the default Android's spinner, with a nice arrow animation and a different way to display its content.
 
-It follows the material design guidelines, and it is compatible starting from Api 14.
+It follow1s the material design guidelines, and it is compatible starting from Api 14.
 
 ![alt tag](nice-spinner.gif)
 
@@ -65,7 +65,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.github.arcadefire:nice-spinner:1.4.1'
+    implementation 'com.github.arcadefire:nice-spinner:1.4.2'
 }
 ```
 
@@ -82,7 +82,7 @@ Or declare it into your `pom.xml`:
 <dependency>
     <groupId>com.github.arcadefire</groupId>
     <artifactId>nice-spinner</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
 </dependency>
 ```
 
