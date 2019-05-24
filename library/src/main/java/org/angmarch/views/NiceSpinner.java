@@ -365,10 +365,12 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     private void setAdapterInternal(NiceSpinnerBaseAdapter adapter) {
-        // If the adapter needs to be settled again, ensure to reset the selected index as well
-        selectedIndex = 0;
-        listView.setAdapter(adapter);
-        setTextInternal(selectedTextFormatter.format(adapter.getItemInDataset(selectedIndex)).toString());
+        if (adapter.getCount() > 0) {
+            // If the adapter needs to be set again, ensure to reset the selected index as well
+            selectedIndex = 0;
+            listView.setAdapter(adapter);
+            setTextInternal(selectedTextFormatter.format(adapter.getItemInDataset(selectedIndex)).toString());
+        }
     }
 
     @Override
