@@ -270,6 +270,7 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     private Drawable initArrowDrawable(int drawableTint) {
+        if (arrowDrawableResId == 0) return null;
         Drawable drawable = ContextCompat.getDrawable(getContext(), arrowDrawableResId);
         if (drawable != null) {
             drawable = DrawableCompat.wrap(drawable);
@@ -351,13 +352,17 @@ public class NiceSpinner extends AppCompatTextView {
         this.listView.setFastScrollEnabled(isEnabled);
     }
 
-    /** @deprecated use setOnSpinnerItemSelectedListener instead. */
+    /**
+     * @deprecated use setOnSpinnerItemSelectedListener instead.
+     */
     @Deprecated
     public void addOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 
-    /** @deprecated use setOnSpinnerItemSelectedListener instead. */
+    /**
+     * @deprecated use setOnSpinnerItemSelectedListener instead.
+     */
     @Deprecated
     public void setOnItemSelectedListener(AdapterView.OnItemSelectedListener onItemSelectedListener) {
         this.onItemSelectedListener = onItemSelectedListener;
