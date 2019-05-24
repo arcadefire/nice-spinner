@@ -337,6 +337,10 @@ public class NiceSpinner extends AppCompatTextView {
         }
     }
 
+    public void setFastScrollEnabled(boolean isEnabled) {
+        this.listView.setFastScrollEnabled(isEnabled);
+    }
+
     public void addOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
