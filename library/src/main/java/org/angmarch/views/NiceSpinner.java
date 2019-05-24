@@ -73,8 +73,7 @@ public class NiceSpinner extends AppCompatTextView {
     private int displayHeight;
     private int parentVerticalOffset;
     private int dropDownListPaddingBottom;
-    private @DrawableRes
-    int arrowDrawableResId;
+    private @DrawableRes int arrowDrawableResId;
     private SpinnerTextFormatter spinnerTextFormatter = new SimpleSpinnerTextFormatter();
     private SpinnerTextFormatter selectedTextFormatter = new SimpleSpinnerTextFormatter();
     private PopUpTextAlignment horizontalAlignment;
@@ -216,7 +215,7 @@ public class NiceSpinner extends AppCompatTextView {
         });
 
         isArrowHidden = typedArray.getBoolean(R.styleable.NiceSpinner_hideArrow, false);
-        arrowDrawableTint = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, Integer.MAX_VALUE);
+        arrowDrawableTint = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, getResources().getColor(android.R.color.black));
         arrowDrawableResId = typedArray.getResourceId(R.styleable.NiceSpinner_arrowDrawable, R.drawable.arrow);
         dropDownListPaddingBottom =
                 typedArray.getDimensionPixelSize(R.styleable.NiceSpinner_dropDownListPaddingBottom, 0);

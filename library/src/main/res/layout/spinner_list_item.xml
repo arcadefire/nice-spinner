@@ -9,5 +9,5 @@
     android:padding="@dimen/one_and_a_half_grid_unit"
     android:singleLine="true"
     android:textSize="15sp"
-    tools:textColor="@android:color/black"
-    tools:text="Item"/>
+    tools:text="Item"
+    tools:textColor="@android:color/black" />
