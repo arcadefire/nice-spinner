@@ -18,11 +18,24 @@ The usage is pretty straightforward. Add the tag into the XML layout:
 ```
 * Note: change `layout_width` to at least the width of the largest item on the list to prevent resizing
 
- Then use this snippet to populate with contents:
+ Then use this snippet to populate it with contents:
 ```java
  NiceSpinner niceSpinner = (NiceSpinner) findViewById(R.id.nice_spinner);
  List<String> dataset = new LinkedList<>(Arrays.asList("One", "Two", "Three", "Four", "Five"));
  niceSpinner.attachDataSource(dataset);
+```
+
+#### Listeners
+For listening to the item selection actions, you can just use the following snippet:
+```java
+spinner.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener() {
+    @Override
+    public void onItemSelected(NiceSpinner parent, View view, int position, long id) {
+        // This example uses String, but your type can be any
+        String item = parent.getItemAtPosition(position);
+        ...
+    }
+});
 ```
 
 #### Attributes
@@ -52,7 +65,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.github.arcadefire:nice-spinner:1.4'
+    implementation 'com.github.arcadefire:nice-spinner:1.4.1'
 }
 ```
 
@@ -69,7 +82,7 @@ Or declare it into your `pom.xml`:
 <dependency>
     <groupId>com.github.arcadefire</groupId>
     <artifactId>nice-spinner</artifactId>
-    <version>1.4</version>
+    <version>1.4.1</version>
 </dependency>
 ```
 
