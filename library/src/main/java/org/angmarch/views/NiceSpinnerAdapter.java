@@ -1,6 +1,12 @@
 package org.angmarch.views;
 
 import android.content.Context;
+import android.os.Build;
+import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -47,6 +53,31 @@ public class NiceSpinnerAdapter<T> extends NiceSpinnerBaseAdapter {
         } else {
             return items.get(position);
         }
+    }
+
+    @Override
+    public View getViewInternal(int position, @Nullable View convertView, ViewGroup parent) {
+        Context context = parent.getContext();
+        TextView textView;
+
+        if (convertView == null) {
+            convertView = View.inflate(context, R.layout.spinner_list_item, null);
+            textView = convertView.findViewById(R.id.text_view_spinner);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                textView.setBackground(ContextCompat.getDrawable(context, backgroundSelector));
+            }
+            convertView.setTag(new ViewHolder(textView));
+        } else {
+            textView = ((ViewHolder) convertView.getTag()).textView;
+        }
+
+        textView.setText(spinnerTextFormatter.format(getItem(position)));
+        textView.setTextColor(textColor);
+
+        setTextHorizontalAlignment(textView);
+
+        return textView;
     }
 
     @Override

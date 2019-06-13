@@ -1,0 +1,13 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/text_view_spinner"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="right"
+    android:ellipsize="marquee"
+    android:gravity="center"
+    android:padding="@dimen/one_and_a_half_grid_unit"
+    android:singleLine="true"
+    android:textSize="25sp"
+    tools:text="Item"
+    tools:textColor="@android:color/black" />

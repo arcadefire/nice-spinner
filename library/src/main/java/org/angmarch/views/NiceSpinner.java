@@ -377,11 +377,20 @@ public class NiceSpinner extends AppCompatTextView {
     public void setAdapter(ListAdapter adapter) {
         this.adapter = new NiceSpinnerAdapterWrapper(getContext(), adapter, textColor, backgroundSelector,
                 spinnerTextFormatter, horizontalAlignment);
-        setAdapterInternal(this.adapter);
+        setAdapterWrapperInternal((NiceSpinnerAdapterWrapper) this.adapter);
     }
 
     public PopUpTextAlignment getPopUpTextAlignment() {
         return horizontalAlignment;
+    }
+
+    private void setAdapterWrapperInternal(NiceSpinnerAdapterWrapper adapter) {
+        if (adapter.getCount() > 0) {
+            // If the adapter needs to be set again, ensure to reset the selected index as well
+            selectedIndex = 0;
+            listView.setAdapter(adapter);
+            setTextInternal(adapter.getItemInDataset(selectedIndex));
+        }
     }
 
     private <T> void setAdapterInternal(NiceSpinnerBaseAdapter<T> adapter) {

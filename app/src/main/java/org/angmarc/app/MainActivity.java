@@ -64,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Selected: " + person.toString(), Toast.LENGTH_SHORT).show();
             }
         });
-        spinner.attachDataSource(people);
+        spinner.setAdapter(new CustomAdapter(this, R.layout.list_item, people));
+        //spinner.attachDataSource(people);
     }
 
     private void setupDefault() {

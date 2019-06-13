@@ -8,6 +8,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
 /*
@@ -28,16 +29,19 @@ import android.widget.TextView;
 @SuppressWarnings("unused")
 public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
 
-    private final PopUpTextAlignment horizontalAlignment;
-    private final SpinnerTextFormatter spinnerTextFormatter;
+    protected final PopUpTextAlignment horizontalAlignment;
+    protected final SpinnerTextFormatter spinnerTextFormatter;
 
-    private int textColor;
-    private int backgroundSelector;
+    protected int textColor;
+    protected int backgroundSelector;
+
+    private final ListAdapter baseAdapter;
 
     int selectedIndex;
 
     NiceSpinnerBaseAdapter(
             Context context,
+            ListAdapter toWrap,
             int textColor,
             int backgroundSelector,
             SpinnerTextFormatter spinnerTextFormatter,
@@ -51,7 +55,7 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
 
     @Override
     public View getView(int position, @Nullable View convertView, ViewGroup parent) {
-        Context context = parent.getContext();
+        /*Context context = parent.getContext();
         TextView textView;
 
         if (convertView == null) {
@@ -69,12 +73,13 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
         textView.setText(spinnerTextFormatter.format(getItem(position)));
         textView.setTextColor(textColor);
 
-        setTextHorizontalAlignment(textView);
+        setTextHorizontalAlignment(textView);*/
 
-        return convertView;
+        //return convertView;
+        return getViewInternal(position, convertView, parent);
     }
 
-    private void setTextHorizontalAlignment(TextView textView) {
+    void setTextHorizontalAlignment(TextView textView) {
         switch (horizontalAlignment) {
             case START:
                 textView.setGravity(Gravity.START);
@@ -95,6 +100,8 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
     void setSelectedIndex(int index) {
         selectedIndex = index;
     }
+
+    public abstract View getViewInternal(int position, @Nullable View convertView, ViewGroup parent);
 
     public abstract T getItemInDataset(int position);
 
@@ -117,3 +124,34 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
         }
     }
 }
+
+
+
+    NiceSpinnerAdapterWrapper(
+            Context context,
+            ListAdapter toWrap,
+            int textColor,
+            int backgroundSelector,
+            SpinnerTextFormatter spinnerTextFormatter,
+            PopUpTextAlignment horizontalAlignment
+    ) {
+        super(context, textColor, backgroundSelector, spinnerTextFormatter, horizontalAlignment);
+        baseAdapter = toWrap;
+    }
+
+    @Override
+    public View getViewInternal(int position, @Nullable View convertView, ViewGroup parent) {
+        return baseAdapter.getView(position, convertView, parent);
+    }
+
+    @Override public int getCount() {
+        return baseAdapter.getCount() - 1;
+    }
+
+    @Override public Object getItem(int position) {
+        return baseAdapter.getItem(position >= selectedIndex ? position + 1 : position);
+    }
+
+    @Override public Object getItemInDataset(int position) {
+        return baseAdapter.getItem(position);
+    }
