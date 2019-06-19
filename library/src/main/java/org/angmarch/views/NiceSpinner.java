@@ -118,7 +118,6 @@ public class NiceSpinner extends AppCompatTextView {
         if (savedState instanceof Bundle) {
             Bundle bundle = (Bundle) savedState;
             selectedIndex = bundle.getInt(SELECTED_INDEX);
-
             if (adapter != null) {
                 setTextInternal(selectedTextFormatter.format(adapter.getItemInDataset(selectedIndex)).toString());
                 adapter.setSelectedIndex(selectedIndex);
@@ -130,7 +129,6 @@ public class NiceSpinner extends AppCompatTextView {
                     post(this::showDropDown);
                 }
             }
-
             isArrowHidden = bundle.getBoolean(IS_ARROW_HIDDEN, false);
             arrowDrawableResId = bundle.getInt(ARROW_DRAWABLE_RES_ID);
             savedState = bundle.getParcelable(INSTANCE_STATE);
@@ -147,16 +145,10 @@ public class NiceSpinner extends AppCompatTextView {
         setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit), defaultPadding, defaultPadding,
                 defaultPadding);
         setClickable(true);
-
         backgroundSelector = typedArray.getResourceId(R.styleable.NiceSpinner_backgroundSelector, R.drawable.selector);
-
-
         setBackgroundResource(backgroundSelector);
-
         textColor = typedArray.getColor(R.styleable.NiceSpinner_textTint, getDefaultTextColor(context));
         setTextColor(textColor);
-
-
         popupWindow = new ListPopupWindow(context);
         popupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -166,7 +158,6 @@ public class NiceSpinner extends AppCompatTextView {
                 if (position >= selectedIndex && position < adapter.getCount()) {
                     position++;
                 }
-
                 selectedIndex = position;
 
                 if (onSpinnerItemSelectedListener != null) {
