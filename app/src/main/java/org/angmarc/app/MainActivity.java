@@ -5,13 +5,16 @@ import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.angmarch.views.NiceSpinner;
 import org.angmarch.views.OnSpinnerItemSelectedListener;
 import org.angmarch.views.SimpleSpinnerTextFormatter;
 import org.angmarch.views.SpinnerTextFormatter;
+import org.angmarch.views.ViewDelegate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,22 +51,25 @@ public class MainActivity extends AppCompatActivity {
         people.add(new Person("Steve", "Rogers"));
         people.add(new Person("Bruce", "Banner"));
 
-        SpinnerTextFormatter textFormatter = new SpinnerTextFormatter<Person>() {
-            @Override
-            public Spannable format(Person person) {
-                return new SpannableString(person.getName() + " " + person.getSurname());
-            }
-        };
+        SpinnerTextFormatter textFormatter = (SpinnerTextFormatter<Person>) person
+                -> new SpannableString(person.getName() + " " + person.getSurname());
 
         spinner.setSpinnerTextFormatter(textFormatter);
         spinner.setSelectedTextFormatter(textFormatter);
-        spinner.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener() {
-            @Override
-            public void onItemSelected(NiceSpinner parent, View view, int position, long id) {
-                Person person = (Person) spinner.getSelectedItem();
-                Toast.makeText(MainActivity.this, "Selected: " + person.toString(), Toast.LENGTH_SHORT).show();
-            }
+        spinner.setOnSpinnerItemSelectedListener((parent, view, position, id) -> {
+            Person person = (Person) spinner.getSelectedItem();
+            Toast.makeText(MainActivity.this, "Selected: " + person.toString(), Toast.LENGTH_SHORT).show();
         });
+
+        spinner.setListEntryViewDelegate(
+                (ViewDelegate<Person>) (position, item, convertView, parent) -> {
+                    View rootView = View.inflate(MainActivity.this, R.layout.custom_spinner_list_item, null);
+                    TextView textView = rootView.findViewById(R.id.text_view_spinner);
+                    textView.setText(item.getName());
+                    return rootView;
+                }
+        );
+
         spinner.attachDataSource(people);
     }
 

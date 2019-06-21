@@ -30,7 +30,6 @@ import android.widget.PopupWindow;
 import android.widget.ListPopupWindow;
 import android.widget.ListView;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -63,7 +62,7 @@ public class NiceSpinner extends AppCompatTextView {
     private int selectedIndex;
     private Drawable arrowDrawable;
     private ListPopupWindow popupWindow;
-    private NiceSpinnerBaseAdapter adapter;
+    private NiceSpinnerAdapter adapter;
 
     private AdapterView.OnItemClickListener onItemClickListener;
     private AdapterView.OnItemSelectedListener onItemSelectedListener;
@@ -84,6 +83,8 @@ public class NiceSpinner extends AppCompatTextView {
 
     @Nullable
     private ObjectAnimator arrowAnimator = null;
+
+    private ViewDelegate viewDelegate = null;
 
     public NiceSpinner(Context context) {
         super(context);
@@ -328,7 +329,6 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
 
-
     /**
      * @deprecated use setOnSpinnerItemSelectedListener instead.
      */
@@ -346,21 +346,42 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     public <T> void attachDataSource(@NonNull List<T> list) {
-        adapter = new NiceSpinnerAdapter<>(getContext(), list, textColor, backgroundSelector, spinnerTextFormatter, horizontalAlignment);
+        if (viewDelegate == null) {
+            viewDelegate = new DefaultViewDelegate<T>(
+                    getContext(),
+                    spinnerTextFormatter,
+                    textColor,
+                    backgroundSelector,
+                    horizontalAlignment
+            );
+        }
+        adapter = new NiceSpinnerAdapter<>(new DefaultAdapterDelegate<>(list), viewDelegate);
         setAdapterInternal(adapter);
     }
 
     public void setAdapter(ListAdapter adapter) {
-        this.adapter = new NiceSpinnerAdapterWrapper(getContext(), adapter, textColor, backgroundSelector,
-                spinnerTextFormatter, horizontalAlignment);
+        if (viewDelegate == null) {
+            viewDelegate = new DefaultViewDelegate<Object>(
+                    getContext(),
+                    spinnerTextFormatter,
+                    textColor,
+                    backgroundSelector,
+                    horizontalAlignment
+            );
+        }
+        this.adapter = new NiceSpinnerAdapter<>(new WrapperAdapterDelegate(adapter), viewDelegate);
         setAdapterInternal(this.adapter);
+    }
+
+    public <T> void setListEntryViewDelegate(ViewDelegate<T> viewDelegate) {
+        this.viewDelegate = viewDelegate;
     }
 
     public PopUpTextAlignment getPopUpTextAlignment() {
         return horizontalAlignment;
     }
 
-    private <T> void setAdapterInternal(NiceSpinnerBaseAdapter<T> adapter) {
+    private <T> void setAdapterInternal(NiceSpinnerAdapter<T> adapter) {
         if (adapter.getCount() > 0) {
             // If the adapter needs to be set again, ensure to reset the selected index as well
             selectedIndex = 0;
@@ -403,7 +424,7 @@ public class NiceSpinner extends AppCompatTextView {
         popupWindow.setAnchorView(this);
         popupWindow.show();
         final ListView listView = popupWindow.getListView();
-        if(listView != null) {
+        if (listView != null) {
             listView.setVerticalScrollBarEnabled(false);
             listView.setHorizontalScrollBarEnabled(false);
             listView.setVerticalFadingEdgeEnabled(false);
@@ -467,13 +488,14 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
 
-    public void performItemClick( int position,boolean showDropdown) {
-        if(showDropdown) showDropDown();
+    public void performItemClick(int position, boolean showDropdown) {
+        if (showDropdown) showDropDown();
         setSelectedIndex(position);
     }
 
     /**
      * only applicable when popup is shown .
+     *
      * @param view
      * @param position
      * @param id
@@ -481,7 +503,7 @@ public class NiceSpinner extends AppCompatTextView {
     public void performItemClick(View view, int position, int id) {
         showDropDown();
         final ListView listView = popupWindow.getListView();
-        if(listView != null) {
+        if (listView != null) {
             listView.performItemClick(view, position, id);
         }
     }
