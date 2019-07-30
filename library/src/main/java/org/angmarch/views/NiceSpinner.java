@@ -280,10 +280,16 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     public Object getItemAtPosition(int position) {
+        if(null == adapter){
+           return null;
+        }
         return adapter.getItemInDataset(position);
     }
 
     public Object getSelectedItem() {
+        if(null == adapter){
+            return null;
+        }
         return adapter.getItemInDataset(selectedIndex);
     }
 
