@@ -65,7 +65,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.github.arcadefire:nice-spinner:1.4.3'
+    implementation 'com.github.arcadefire:nice-spinner:1.4.4'
 }
 ```
 
@@ -82,7 +82,7 @@ Or declare it into your `pom.xml`:
 <dependency>
     <groupId>com.github.arcadefire</groupId>
     <artifactId>nice-spinner</artifactId>
-    <version>1.4.3</version>
+    <version>1.4.4</version>
 </dependency>
 ```
 
