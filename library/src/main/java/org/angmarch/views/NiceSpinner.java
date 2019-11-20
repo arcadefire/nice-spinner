@@ -361,7 +361,7 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     private <T> void setAdapterInternal(NiceSpinnerBaseAdapter<T> adapter) {
-        if (adapter.getCount() > 0) {
+        if (adapter.getCount() >= 0) {
             // If the adapter needs to be set again, ensure to reset the selected index as well
             selectedIndex = 0;
             popupWindow.setAdapter(adapter);
@@ -372,7 +372,7 @@ public class NiceSpinner extends AppCompatTextView {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (isEnabled() && event.getAction() == MotionEvent.ACTION_UP) {
-            if (!popupWindow.isShowing()) {
+            if (!popupWindow.isShowing() && adapter.getCount() > 0) {
                 showDropDown();
             } else {
                 dismissDropDown();
