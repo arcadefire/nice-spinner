@@ -2,8 +2,6 @@ package org.angmarch.views;
 
 import android.content.Context;
 
-import java.util.List;
-
 /*
  * Copyright (C) 2015 Angelo Marchesin.
  *
@@ -19,42 +17,38 @@ import java.util.List;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class NiceSpinnerAdapter<T> extends NiceSpinnerBaseAdapter {
+public class NiceSpinnerDelegateAdapter<T> extends NiceSpinnerBaseAdapter {
 
-    private final List<T> list;
+    private final DataProviderDelegate<T> delegate;
 
-    NiceSpinnerAdapter(
+    NiceSpinnerDelegateAdapter(
             Context context,
-            List<T> list,
             int textColor,
             int backgroundSelector,
-            SpinnerTextFormatter spinnerTextFormatter
+            SpinnerTextFormatter spinnerTextFormatter,
+            DataProviderDelegate<T> delegate
     ) {
         super(context, textColor, backgroundSelector, spinnerTextFormatter);
-        this.list = list;
+        this.delegate = delegate;
     }
 
     @Override
     public int getCount() {
-        return list.size() - 1;
+        return delegate.getCount();
     }
 
     @Override
     public T getItem(int position) {
-        return list.get(getAdjustedPosition(position));
+        return delegate.getItem(position);
     }
 
     @Override
     public T getItemFromList(int position) {
-        return list.get(position);
+        return delegate.getItemInDataset(position);
     }
 
     @Override
     public int getAdjustedPosition(int position) {
-        if (position >= selectedIndex) {
-            return position + 1;
-        } else {
-            return position;
-        }
+        return delegate.getAdjustedPosition(position);
     }
 }

@@ -2,13 +2,13 @@ package org.angmarch.views;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 /*
  * Copyright (C) 2015 Angelo Marchesin.
@@ -28,7 +28,6 @@ import android.widget.TextView;
 @SuppressWarnings("unused")
 public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
 
-    private final PopUpTextAlignment horizontalAlignment;
     private final SpinnerTextFormatter spinnerTextFormatter;
 
     private int textColor;
@@ -40,13 +39,11 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
             Context context,
             int textColor,
             int backgroundSelector,
-            SpinnerTextFormatter spinnerTextFormatter,
-            PopUpTextAlignment horizontalAlignment
+            SpinnerTextFormatter spinnerTextFormatter
     ) {
         this.spinnerTextFormatter = spinnerTextFormatter;
         this.backgroundSelector = backgroundSelector;
         this.textColor = textColor;
-        this.horizontalAlignment = horizontalAlignment;
     }
 
     @Override
@@ -66,29 +63,13 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
             textView = ((ViewHolder) convertView.getTag()).textView;
         }
 
-        textView.setText(spinnerTextFormatter.format(getItem(position)));
+        textView.setText(spinnerTextFormatter.format(getItem(position).toString()));
         textView.setTextColor(textColor);
-
-        setTextHorizontalAlignment(textView);
 
         return convertView;
     }
 
-    private void setTextHorizontalAlignment(TextView textView) {
-        switch (horizontalAlignment) {
-            case START:
-                textView.setGravity(Gravity.START);
-                break;
-            case END:
-                textView.setGravity(Gravity.END);
-                break;
-            case CENTER:
-                textView.setGravity(Gravity.CENTER_HORIZONTAL);
-                break;
-        }
-    }
-
-    public int getSelectedIndex() {
+    int getSelectedIndex() {
         return selectedIndex;
     }
 
@@ -96,7 +77,11 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
         selectedIndex = index;
     }
 
-    public abstract T getItemInDataset(int position);
+    public int getAdjustedPosition(int position) {
+        return position;
+    }
+
+    public abstract T getItemFromList(int position);
 
     @Override
     public long getItemId(int position) {

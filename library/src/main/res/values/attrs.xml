@@ -15,5 +15,8 @@
         <attr name="textTint" format="color" />
         <attr name="popupTextAlignment" />
         <attr name="entries" format="reference" />
+        <attr name="underlinePaddingLeft" format="dimension" />
+        <attr name="underlinePaddingRight" format="dimension" />
+        <attr name="underlineTint" format="reference|color" />
     </declare-styleable>
 </resources>
