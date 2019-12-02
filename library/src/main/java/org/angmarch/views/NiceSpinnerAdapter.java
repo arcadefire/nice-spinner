@@ -1,8 +1,15 @@
 package org.angmarch.views;
 
 import android.content.Context;
+import android.os.Build;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
 
-import java.util.List;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 /*
  * Copyright (C) 2015 Angelo Marchesin.
@@ -19,42 +26,115 @@ import java.util.List;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class NiceSpinnerAdapter<T> extends NiceSpinnerBaseAdapter {
+@SuppressWarnings("unused")
+public class NiceSpinnerAdapter<T> extends BaseAdapter {
 
-    private final List<T> list;
+    private final SpinnerTextFormatter spinnerTextFormatter;
+    private final PopUpTextAlignment horizontalAlignment;
+    private final DataProviderDelegate<T> delegate;
+
+    private int textColor;
+    private int backgroundSelector;
+    private int defaultTextHeight;
+
+    int selectedIndex = 0;
 
     NiceSpinnerAdapter(
             Context context,
-            List<T> list,
             int textColor,
             int backgroundSelector,
-            SpinnerTextFormatter spinnerTextFormatter
+            DataProviderDelegate<T> delegate,
+            SpinnerTextFormatter spinnerTextFormatter,
+            PopUpTextAlignment horizontalAlignment
     ) {
-        super(context, textColor, backgroundSelector, spinnerTextFormatter);
-        this.list = list;
+        this.spinnerTextFormatter = spinnerTextFormatter;
+        this.backgroundSelector = backgroundSelector;
+        this.textColor = textColor;
+        this.delegate = delegate;
+        this.horizontalAlignment = horizontalAlignment;
+    }
+
+    @Override
+    public View getView(int position, @Nullable View convertView, ViewGroup parent) {
+        Context context = parent.getContext();
+        TextView textView;
+
+        if (convertView == null) {
+            convertView = View.inflate(context, R.layout.spinner_list_item, null);
+            textView = convertView.findViewById(R.id.text_view_spinner);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                textView.setBackground(ContextCompat.getDrawable(context, backgroundSelector));
+            }
+            convertView.setTag(new ViewHolder(textView));
+        } else {
+            textView = ((ViewHolder) convertView.getTag()).textView;
+        }
+
+        textView.setTextColor(textColor);
+        textView.setText(spinnerTextFormatter.formatEntryText(getItem(position).toString()));
+
+        setTextHorizontalAlignment(textView);
+
+        return convertView;
+    }
+
+    private void setTextHorizontalAlignment(TextView textView) {
+        switch (horizontalAlignment) {
+            case START:
+                textView.setGravity(Gravity.START);
+                break;
+            case END:
+                textView.setGravity(Gravity.END);
+                break;
+            case CENTER:
+                textView.setGravity(Gravity.CENTER_HORIZONTAL);
+                break;
+        }
+    }
+
+    int getSelectedIndex() {
+        return selectedIndex;
+    }
+
+    void setSelectedIndex(int index) {
+        selectedIndex = index;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 
     @Override
     public int getCount() {
-        return list.size() - 1;
+        return delegate.getCount() - 1;
     }
 
     @Override
     public T getItem(int position) {
-        return list.get(getAdjustedPosition(position));
+        return delegate.getItem(getAdjustedPosition(position));
     }
 
-    @Override
-    public T getItemFromList(int position) {
-        return list.get(position);
+    T getItemFromDataset(int position) {
+        return delegate.getItem(position);
     }
 
-    @Override
-    public int getAdjustedPosition(int position) {
+    // The selected item is not displayed within the list, so when the selected position is equal to
+    // the one of the currently selected item it gets shifted to the next item.
+    int getAdjustedPosition(int position) {
         if (position >= selectedIndex) {
             return position + 1;
         } else {
             return position;
+        }
+    }
+
+    static class ViewHolder {
+        TextView textView;
+
+        ViewHolder(TextView textView) {
+            this.textView = textView;
         }
     }
 }

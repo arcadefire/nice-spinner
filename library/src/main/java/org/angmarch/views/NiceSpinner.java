@@ -20,7 +20,6 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
@@ -59,10 +58,9 @@ public class NiceSpinner extends AppCompatTextView {
     private static final String IS_ARROW_HIDDEN = "is_arrow_hidden";
     private static final String ARROW_DRAWABLE_RES_ID = "arrow_drawable_res_id";
 
-    private int selectedIndex;
     private Drawable arrowDrawable;
     private ListPopupWindow popupWindow;
-    private NiceSpinnerBaseAdapter adapter;
+    private NiceSpinnerAdapter adapter;
 
     private AdapterView.OnItemClickListener onItemClickListener;
     private AdapterView.OnItemSelectedListener onItemSelectedListener;
@@ -75,8 +73,7 @@ public class NiceSpinner extends AppCompatTextView {
     private int displayHeight;
     private int parentVerticalOffset;
     private int dropDownListPaddingBottom;
-    private @DrawableRes
-    int arrowDrawableResId;
+    private @DrawableRes int arrowDrawableResId;
     private SpinnerTextFormatter spinnerTextFormatter = new SimpleSpinnerTextFormatter();
     private SpinnerTextFormatter selectedTextFormatter = new SimpleSpinnerTextFormatter();
     private PopUpTextAlignment horizontalAlignment;
@@ -109,7 +106,7 @@ public class NiceSpinner extends AppCompatTextView {
     public Parcelable onSaveInstanceState() {
         Bundle bundle = new Bundle();
         bundle.putParcelable(INSTANCE_STATE, super.onSaveInstanceState());
-        bundle.putInt(SELECTED_INDEX, selectedIndex);
+        bundle.putInt(SELECTED_INDEX, adapter.selectedIndex);
         bundle.putBoolean(IS_ARROW_HIDDEN, isArrowHidden);
         bundle.putInt(ARROW_DRAWABLE_RES_ID, arrowDrawableResId);
         if (popupWindow != null) {
@@ -122,9 +119,9 @@ public class NiceSpinner extends AppCompatTextView {
     public void onRestoreInstanceState(Parcelable savedState) {
         if (savedState instanceof Bundle) {
             Bundle bundle = (Bundle) savedState;
-            selectedIndex = bundle.getInt(SELECTED_INDEX);
+            int selectedIndex = bundle.getInt(SELECTED_INDEX);
             if (adapter != null) {
-                setTextInternal(selectedTextFormatter.format(adapter.getItemFromList(selectedIndex).toString()));
+                setTextInternal(adapter.getItemFromDataset(selectedIndex).toString());
                 adapter.setSelectedIndex(selectedIndex);
             }
 
@@ -160,11 +157,10 @@ public class NiceSpinner extends AppCompatTextView {
         popupWindow.setOnItemClickListener((parent, view, position, id) -> {
             int adjustedPosition = adapter.getAdjustedPosition(position);
 
-            setTextInternal(adapter.getItem(position).toString());
+            setTextInternal(adapter.getItemFromDataset(adjustedPosition).toString());
 
             // Need to set selected index before calling listeners or getSelectedIndex() value can be
             // reported incorrectly.
-            selectedIndex = adjustedPosition;
             adapter.setSelectedIndex(adjustedPosition);
 
             if (onItemClickListener != null) {
@@ -179,12 +175,9 @@ public class NiceSpinner extends AppCompatTextView {
         });
 
         popupWindow.setModal(true);
-        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                if (!isArrowHidden) {
-                    animateArrow(false);
-                }
+        popupWindow.setOnDismissListener(() -> {
+            if (!isArrowHidden) {
+                animateArrow(false);
             }
         });
 
@@ -274,8 +267,7 @@ public class NiceSpinner extends AppCompatTextView {
 
     private int getDefaultTextColor(Context context) {
         TypedValue typedValue = new TypedValue();
-        context.getTheme()
-                .resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
+        context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
         TypedArray typedArray = context.obtainStyledAttributes(typedValue.data,
                 new int[]{android.R.attr.textColorPrimary});
         int defaultTextColor = typedArray.getColor(0, Color.BLACK);
@@ -284,15 +276,15 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     public Object getItemAtPosition(int position) {
-        return adapter.getItemFromList(position);
+        return adapter.getItemFromDataset(position);
     }
 
     public Object getSelectedItem() {
-        return adapter.getItemFromList(selectedIndex);
+        return adapter.getItemFromDataset(adapter.getSelectedIndex());
     }
 
     public int getSelectedIndex() {
-        return selectedIndex;
+        return adapter.getSelectedIndex();
     }
 
     public void setArrowDrawable(@DrawableRes @ColorRes int drawableId) {
@@ -306,9 +298,9 @@ public class NiceSpinner extends AppCompatTextView {
         setArrowDrawableOrHide(arrowDrawable);
     }
 
-    private void setTextInternal(Object item) {
+    void setTextInternal(Object item) {
         if (selectedTextFormatter != null) {
-            setText(selectedTextFormatter.format(item.toString()));
+            setText(selectedTextFormatter.formatSelectedText(item.toString()));
         } else {
             setText(item.toString());
         }
@@ -323,8 +315,7 @@ public class NiceSpinner extends AppCompatTextView {
         if (adapter != null) {
             if (position >= 0 && position <= adapter.getCount()) {
                 adapter.setSelectedIndex(position);
-                selectedIndex = position;
-                setTextInternal(selectedTextFormatter.format(adapter.getItemFromList(position).toString()));
+                setTextInternal(adapter.getItemFromDataset(position).toString());
             } else {
                 throw new IllegalArgumentException("Position must be lower than adapter count!");
             }
@@ -351,27 +342,36 @@ public class NiceSpinner extends AppCompatTextView {
         if (list.size() > 0) {
             adapter = new NiceSpinnerAdapter<>(
                     getContext(),
-                    list,
                     textColor,
                     backgroundSelector,
-                    spinnerTextFormatter
+                    new ListDataProviderDelegate<>(list),
+                    spinnerTextFormatter,
+                    horizontalAlignment
             );
             setAdapterInternal(adapter);
         }
     }
+
     public void setAdapter(ListAdapter adapter) {
-        this.adapter = new NiceSpinnerAdapterWrapper(getContext(), adapter, textColor, backgroundSelector,
-                spinnerTextFormatter);
+        this.adapter = new NiceSpinnerAdapter<>(
+                getContext(),
+                textColor,
+                backgroundSelector,
+                new AdapterDataProviderDelegate<>(adapter),
+                spinnerTextFormatter,
+                horizontalAlignment
+        );
         setAdapterInternal(this.adapter);
     }
 
     public <T> void setAdapter(DataProviderDelegate<T> delegate) {
-        this.adapter = new NiceSpinnerDelegateAdapter(
+        this.adapter = new NiceSpinnerAdapter<>(
                 getContext(),
                 textColor,
                 backgroundSelector,
+                delegate,
                 spinnerTextFormatter,
-                delegate
+                horizontalAlignment
         );
         setAdapterInternal(this.adapter);
     }
@@ -380,12 +380,12 @@ public class NiceSpinner extends AppCompatTextView {
         return horizontalAlignment;
     }
 
-    private <T> void setAdapterInternal(NiceSpinnerBaseAdapter<T> adapter) {
+    private <T> void setAdapterInternal(NiceSpinnerAdapter<T> adapter) {
         if (adapter.getCount() >= 0) {
             // If the adapter needs to be set again, ensure to reset the selected index as well
-            selectedIndex = 0;
+            adapter.setSelectedIndex(0);
             popupWindow.setAdapter(adapter);
-            setTextInternal(adapter.getItemFromList(selectedIndex));
+            setTextInternal(adapter.getItemFromDataset(0));
         }
     }
 
@@ -438,7 +438,7 @@ public class NiceSpinner extends AppCompatTextView {
         popupWindow.setAnchorView(this);
         popupWindow.show();
         final ListView listView = popupWindow.getListView();
-        if(listView != null) {
+        if (listView != null) {
             listView.setVerticalScrollBarEnabled(false);
             listView.setHorizontalScrollBarEnabled(false);
             listView.setVerticalFadingEdgeEnabled(false);
@@ -501,22 +501,10 @@ public class NiceSpinner extends AppCompatTextView {
         this.selectedTextFormatter = textFormatter;
     }
 
-
-    public void performItemClick( int position,boolean showDropdown) {
-        if(showDropdown) showDropDown();
-        setSelectedIndex(position);
-    }
-
-    /**
-     * only applicable when popup is shown .
-     * @param view
-     * @param position
-     * @param id
-     */
     public void performItemClick(View view, int position, int id) {
         showDropDown();
         final ListView listView = popupWindow.getListView();
-        if(listView != null) {
+        if (listView != null) {
             listView.performItemClick(view, position, id);
         }
     }
@@ -528,7 +516,4 @@ public class NiceSpinner extends AppCompatTextView {
     public void setOnSpinnerItemSelectedListener(OnSpinnerItemSelectedListener onSpinnerItemSelectedListener) {
         this.onSpinnerItemSelectedListener = onSpinnerItemSelectedListener;
     }
-
-
 }
-
