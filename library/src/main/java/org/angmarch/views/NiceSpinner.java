@@ -75,7 +75,6 @@ public class NiceSpinner extends AppCompatTextView {
     private int dropDownListPaddingBottom;
     private @DrawableRes int arrowDrawableResId;
     private SpinnerTextFormatter spinnerTextFormatter = new SimpleSpinnerTextFormatter();
-    private SpinnerTextFormatter selectedTextFormatter = new SimpleSpinnerTextFormatter();
     private PopUpTextAlignment horizontalAlignment;
 
     private int underlineTint;
@@ -157,7 +156,7 @@ public class NiceSpinner extends AppCompatTextView {
         popupWindow.setOnItemClickListener((parent, view, position, id) -> {
             int adjustedPosition = adapter.getAdjustedPosition(position);
 
-            setTextInternal(adapter.getItemFromDataset(adjustedPosition).toString());
+            setTextInternal(adapter.getItemFromDataset(adjustedPosition));
 
             // Need to set selected index before calling listeners or getSelectedIndex() value can be
             // reported incorrectly.
@@ -299,8 +298,8 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     void setTextInternal(Object item) {
-        if (selectedTextFormatter != null) {
-            setText(selectedTextFormatter.formatSelectedText(item.toString()));
+        if (spinnerTextFormatter != null) {
+            setText(spinnerTextFormatter.formatSelectedText(item));
         } else {
             setText(item.toString());
         }
@@ -495,10 +494,6 @@ public class NiceSpinner extends AppCompatTextView {
 
     public void setSpinnerTextFormatter(SpinnerTextFormatter spinnerTextFormatter) {
         this.spinnerTextFormatter = spinnerTextFormatter;
-    }
-
-    public void setSelectedTextFormatter(SpinnerTextFormatter textFormatter) {
-        this.selectedTextFormatter = textFormatter;
     }
 
     public void performItemClick(View view, int position, int id) {

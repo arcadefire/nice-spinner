@@ -3,15 +3,15 @@ package org.angmarch.views;
 import android.text.Spannable;
 import android.text.SpannableString;
 
-public class SimpleSpinnerTextFormatter implements SpinnerTextFormatter {
+public class SimpleSpinnerTextFormatter<Object> implements SpinnerTextFormatter<Object> {
 
     @Override
-    public Spannable formatSelectedText(String text) {
-        return new SpannableString(text);
+    public Spannable formatSelectedText(Object text) {
+        return new SpannableString(text.toString());
     }
 
     @Override
-    public Spannable formatEntryText(String text) {
-        return new SpannableString(text);
+    public Spannable formatEntryText(Object text) {
+        return new SpannableString(text.toString());
     }
 }

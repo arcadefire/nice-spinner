@@ -2,9 +2,9 @@ package org.angmarch.views;
 
 import android.text.Spannable;
 
-public interface SpinnerTextFormatter {
+public interface SpinnerTextFormatter<T> {
 
-    Spannable formatSelectedText(String text);
+    Spannable formatSelectedText(T text);
 
-    Spannable formatEntryText(String text);
+    Spannable formatEntryText(T text);
 }
