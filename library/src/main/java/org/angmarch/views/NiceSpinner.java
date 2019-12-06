@@ -162,6 +162,10 @@ public class NiceSpinner extends AppCompatTextView {
             // reported incorrectly.
             adapter.setSelectedIndex(adjustedPosition);
 
+            if (onSpinnerItemSelectedListener != null) {
+                onSpinnerItemSelectedListener.onItemSelected(NiceSpinner.this, view, adjustedPosition, id);
+            }
+
             if (onItemClickListener != null) {
                 onItemClickListener.onItemClick(parent, view, adjustedPosition, id);
             }
