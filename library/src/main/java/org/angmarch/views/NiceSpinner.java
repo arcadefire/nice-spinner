@@ -73,7 +73,8 @@ public class NiceSpinner extends AppCompatTextView {
     private int displayHeight;
     private int parentVerticalOffset;
     private int dropDownListPaddingBottom;
-    private @DrawableRes int arrowDrawableResId;
+    private @DrawableRes
+    int arrowDrawableResId;
     private SpinnerTextFormatter spinnerTextFormatter = new SimpleSpinnerTextFormatter();
     private PopUpTextAlignment horizontalAlignment;
 
@@ -105,7 +106,9 @@ public class NiceSpinner extends AppCompatTextView {
     public Parcelable onSaveInstanceState() {
         Bundle bundle = new Bundle();
         bundle.putParcelable(INSTANCE_STATE, super.onSaveInstanceState());
-        bundle.putInt(SELECTED_INDEX, adapter.selectedIndex);
+        if (adapter != null) {
+            bundle.putInt(SELECTED_INDEX, adapter.selectedIndex);
+        }
         bundle.putBoolean(IS_ARROW_HIDDEN, isArrowHidden);
         bundle.putInt(ARROW_DRAWABLE_RES_ID, arrowDrawableResId);
         if (popupWindow != null) {
