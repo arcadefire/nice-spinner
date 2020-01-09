@@ -32,6 +32,7 @@ public class NiceSpinnerAdapter<T> extends BaseAdapter {
     private final SpinnerTextFormatter spinnerTextFormatter;
     private final PopUpTextAlignment horizontalAlignment;
     private final DataProviderDelegate<T> delegate;
+    private final boolean showSelectedItemInDropDownList;
 
     private int textColor;
     private int backgroundSelector;
@@ -45,13 +46,15 @@ public class NiceSpinnerAdapter<T> extends BaseAdapter {
             int backgroundSelector,
             DataProviderDelegate<T> delegate,
             SpinnerTextFormatter spinnerTextFormatter,
-            PopUpTextAlignment horizontalAlignment
+            PopUpTextAlignment horizontalAlignment,
+            boolean showSelectedItemInDropDownList
     ) {
         this.spinnerTextFormatter = spinnerTextFormatter;
         this.backgroundSelector = backgroundSelector;
         this.textColor = textColor;
         this.delegate = delegate;
         this.horizontalAlignment = horizontalAlignment;
+        this.showSelectedItemInDropDownList = showSelectedItemInDropDownList;
     }
 
     @Override
@@ -108,7 +111,11 @@ public class NiceSpinnerAdapter<T> extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return delegate.getCount() - 1;
+        if (showSelectedItemInDropDownList) {
+            return delegate.getCount();
+        } else {
+            return delegate.getCount() - 1;
+        }
     }
 
     @Override
@@ -123,7 +130,7 @@ public class NiceSpinnerAdapter<T> extends BaseAdapter {
     // The selected item is not displayed within the list, so when the selected position is equal to
     // the one of the currently selected item it gets shifted to the next item.
     int getAdjustedPosition(int position) {
-        if (position >= selectedIndex) {
+        if (position >= selectedIndex && !showSelectedItemInDropDownList) {
             return position + 1;
         } else {
             return position;

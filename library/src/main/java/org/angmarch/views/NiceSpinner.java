@@ -67,6 +67,7 @@ public class NiceSpinner extends AppCompatTextView {
     private OnSpinnerItemSelectedListener onSpinnerItemSelectedListener;
 
     private boolean isArrowHidden;
+    private boolean showSelectedItemInDropDownList;
     private int textColor;
     private int backgroundSelector;
     private int arrowDrawableTint;
@@ -89,17 +90,17 @@ public class NiceSpinner extends AppCompatTextView {
 
     public NiceSpinner(Context context) {
         super(context);
-        init(context, null);
+        init(context, null, 0);
     }
 
     public NiceSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs);
+        init(context, attrs, 0);
     }
 
     public NiceSpinner(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs);
+        init(context, attrs, defStyleAttr);
     }
 
     @Override
@@ -123,7 +124,7 @@ public class NiceSpinner extends AppCompatTextView {
             Bundle bundle = (Bundle) savedState;
             int selectedIndex = bundle.getInt(SELECTED_INDEX);
             if (adapter != null) {
-                setTextInternal(adapter.getItemFromDataset(selectedIndex).toString());
+                setTextInternal(adapter.getItemFromDataset(selectedIndex));
                 adapter.setSelectedIndex(selectedIndex);
             }
 
@@ -140,9 +141,9 @@ public class NiceSpinner extends AppCompatTextView {
         super.onRestoreInstanceState(savedState);
     }
 
-    private void init(Context context, AttributeSet attrs) {
+    private void init(Context context, AttributeSet attrs, int defStyleAttr) {
         Resources resources = getResources();
-        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.NiceSpinner);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.NiceSpinner, defStyleAttr, 0);
         int defaultPadding = resources.getDimensionPixelSize(R.dimen.one_and_a_half_grid_unit);
 
         setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
@@ -352,7 +353,8 @@ public class NiceSpinner extends AppCompatTextView {
                     backgroundSelector,
                     new ListDataProviderDelegate<>(list),
                     spinnerTextFormatter,
-                    horizontalAlignment
+                    horizontalAlignment,
+                    showSelectedItemInDropDownList
             );
             setAdapterInternal(adapter);
         }
@@ -365,7 +367,8 @@ public class NiceSpinner extends AppCompatTextView {
                 backgroundSelector,
                 new AdapterDataProviderDelegate<>(adapter),
                 spinnerTextFormatter,
-                horizontalAlignment
+                horizontalAlignment,
+                showSelectedItemInDropDownList
         );
         setAdapterInternal(this.adapter);
     }
@@ -377,7 +380,8 @@ public class NiceSpinner extends AppCompatTextView {
                 backgroundSelector,
                 delegate,
                 spinnerTextFormatter,
-                horizontalAlignment
+                horizontalAlignment,
+                showSelectedItemInDropDownList
         );
         setAdapterInternal(this.adapter);
     }
@@ -517,5 +521,13 @@ public class NiceSpinner extends AppCompatTextView {
 
     public void setOnSpinnerItemSelectedListener(OnSpinnerItemSelectedListener onSpinnerItemSelectedListener) {
         this.onSpinnerItemSelectedListener = onSpinnerItemSelectedListener;
+    }
+
+    public boolean isShowSelectedItemInDropDownList() {
+        return showSelectedItemInDropDownList;
+    }
+
+    public void setShowSelectedItemInDropDownList(boolean showSelectedItemInDropDownList) {
+        this.showSelectedItemInDropDownList = showSelectedItemInDropDownList;
     }
 }
