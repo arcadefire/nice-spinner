@@ -291,7 +291,11 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     public int getSelectedIndex() {
-        return adapter.getSelectedIndex();
+        if (adapter != null) {
+            return adapter.getSelectedIndex();
+        } else {
+            return 0;
+        }
     }
 
     public void setArrowDrawable(@DrawableRes @ColorRes int drawableId) {

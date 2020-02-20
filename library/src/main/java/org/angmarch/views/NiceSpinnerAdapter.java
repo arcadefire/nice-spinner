@@ -114,7 +114,7 @@ public class NiceSpinnerAdapter<T> extends BaseAdapter {
         if (showSelectedItemInDropDownList) {
             return delegate.getCount();
         } else {
-            return delegate.getCount() - 1;
+            return Math.max(delegate.getCount() - 1, 0);
         }
     }
 
