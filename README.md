@@ -2,7 +2,7 @@
 
 NiceSpinner is a re-implementation of the default Android's spinner, with a nice arrow animation and a different way to display its content.
 
-It follow1s the material design guidelines, and it is compatible starting from Api 14.
+It follows the material design guidelines, and it is compatible starting from Api 14.
 
 ![alt tag](nice-spinner.gif)
 
