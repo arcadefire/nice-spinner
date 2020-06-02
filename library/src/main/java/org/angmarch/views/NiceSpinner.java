@@ -11,6 +11,13 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
+import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -20,14 +27,6 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.ListView;
-
-import androidx.annotation.ColorRes;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatTextView;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 
 import java.util.Arrays;
 import java.util.List;
@@ -68,6 +67,7 @@ public class NiceSpinner extends AppCompatTextView {
 
     private boolean isArrowHidden;
     private boolean showSelectedItemInDropDownList;
+    private boolean showHint;
     private int textColor;
     private int backgroundSelector;
     private int arrowDrawableTint;
@@ -399,7 +399,9 @@ public class NiceSpinner extends AppCompatTextView {
             // If the adapter needs to be set again, ensure to reset the selected index as well
             adapter.setSelectedIndex(0);
             popupWindow.setAdapter(adapter);
-            setTextInternal(adapter.getItemFromDataset(0));
+            if (!showHint) {
+                setTextInternal(adapter.getItemFromDataset(0));
+            }
         }
     }
 
@@ -533,5 +535,9 @@ public class NiceSpinner extends AppCompatTextView {
 
     public void setShowSelectedItemInDropDownList(boolean showSelectedItemInDropDownList) {
         this.showSelectedItemInDropDownList = showSelectedItemInDropDownList;
+    }
+
+    public void setShowHint(boolean showHint) {
+        this.showHint = showHint;
     }
 }
