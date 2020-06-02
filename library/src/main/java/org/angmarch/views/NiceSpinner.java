@@ -537,6 +537,10 @@ public class NiceSpinner extends AppCompatTextView {
         this.showSelectedItemInDropDownList = showSelectedItemInDropDownList;
     }
 
+    public boolean isShowHint() {
+        return showHint;
+    }
+
     public void setShowHint(boolean showHint) {
         this.showHint = showHint;
     }
