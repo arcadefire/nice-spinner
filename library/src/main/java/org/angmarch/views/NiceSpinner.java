@@ -165,6 +165,7 @@ public class NiceSpinner extends AppCompatTextView {
             // Need to set selected index before calling listeners or getSelectedIndex() value can be
             // reported incorrectly.
             adapter.setSelectedIndex(adjustedPosition);
+            setSelected(true);
 
             if (onSpinnerItemSelectedListener != null) {
                 onSpinnerItemSelectedListener.onItemSelected(NiceSpinner.this, view, adjustedPosition, id);
@@ -400,7 +401,10 @@ public class NiceSpinner extends AppCompatTextView {
             adapter.setSelectedIndex(0);
             popupWindow.setAdapter(adapter);
             if (!showHint) {
+                setSelected(true);
                 setTextInternal(adapter.getItemFromDataset(0));
+            } else {
+                setSelected(false);
             }
         }
     }
