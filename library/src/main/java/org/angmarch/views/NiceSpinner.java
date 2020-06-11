@@ -22,6 +22,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.PopupWindow;
@@ -30,7 +31,6 @@ import android.widget.PopupWindow;
 import android.widget.ListPopupWindow;
 import android.widget.ListView;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -397,6 +397,8 @@ public class NiceSpinner extends AppCompatTextView {
     }
 
     public void showDropDown() {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getWindowToken(), 0);
         if (!isArrowHidden) {
             animateArrow(true);
         }
