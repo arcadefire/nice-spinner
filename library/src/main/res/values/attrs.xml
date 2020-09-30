@@ -13,6 +13,7 @@
         <attr name="dropDownListPaddingBottom" format="dimension" />
         <attr name="backgroundSelector" format="integer" />
         <attr name="textTint" format="color" />
+        <attr name="promptColor" format="color" />
         <attr name="popupTextAlignment" />
         <attr name="entries" format="reference" />
     </declare-styleable>
