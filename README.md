@@ -41,7 +41,7 @@ spinner.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener() {
 #### Attributes
 You can add attributes to customize the view. Available attributes:
 
-| name                      | type      | info                                                   |
+| Name                      | Type      | Info                                                   |
 |------------------------   |-----------|--------------------------------------------------------|
 | arrowTint                 | color     | sets the color on the drop-down arrow                  |
 | hideArrow                 | boolean   | set whether show or hide the drop-down arrow           |
