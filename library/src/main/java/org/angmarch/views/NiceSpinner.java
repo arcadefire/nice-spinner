@@ -262,7 +262,11 @@ public class NiceSpinner extends AppCompatTextView {
 
     private void setArrowDrawableOrHide(Drawable drawable) {
         if (!isArrowHidden && drawable != null) {
-            setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
+            if (Build.VERSION.SDK_INT >= 17) {
+                setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, drawable, null);
+            } else {
+                setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
+            }
         } else {
             setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
         }
