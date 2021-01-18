@@ -34,15 +34,18 @@ public class NiceSpinnerAdapterWrapper extends NiceSpinnerBaseAdapter {
         baseAdapter = toWrap;
     }
 
-    @Override public int getCount() {
-        return baseAdapter.getCount() - 1;
+    @Override
+    public int getCount() {
+        return hideSelectedItem ? baseAdapter.getCount() - 1 : baseAdapter.getCount();
     }
 
-    @Override public Object getItem(int position) {
-        return baseAdapter.getItem(position >= selectedIndex ? position + 1 : position);
+    @Override
+    public Object getItem(int position) {
+        return baseAdapter.getItem((position >= selectedIndex && hideSelectedItem) ? position + 1 : position);
     }
 
-    @Override public Object getItemInDataset(int position) {
-        return baseAdapter.getItem(position);
+    @Override
+    public Object getItemInDataset(int position) {
+        return baseAdapter.getItem((hideSelectedItem || position == 0) ? position : position - 1);
     }
 }
