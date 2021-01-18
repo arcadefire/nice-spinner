@@ -15,5 +15,6 @@
         <attr name="textTint" format="color" />
         <attr name="popupTextAlignment" />
         <attr name="entries" format="reference" />
+        <attr name="hideSelectedItem" format="boolean" />
     </declare-styleable>
 </resources>
